@@ -27,6 +27,8 @@ import { MoonpayBuy } from '@/components/Moonpay'
 import { toastSubject } from '@/hooks/toast/useGlobalToast'
 import useResponsive from '@/hooks/useResponsive'
 
+import { Heading } from '@chakra-ui/react'
+
 export default function Swap() {
   // const { inputMint: cacheInput, outputMint: cacheOutput } = getSwapPairCache()
   const [inputMint, setInputMint] = useState<string>(PublicKey.default.toBase58())
@@ -111,6 +113,27 @@ export default function Swap() {
       mt={[0, getVHExpression([0, 800], [32, 1300])]}
       width={!isMobile && isPCChartShown ? 'min(100%, 1300px)' : undefined}
     >
+      <Heading
+        as="h1"
+        fontSize="6xl" // equivalent to text-6xl in Tailwind
+        fontWeight="extrabold" // equivalent to font-extrabold in Tailwind
+        bgGradient="linear(to-r, cyan.300, pink.400)" // gradient background
+        bgClip="text" // bg-clip-text equivalent
+        textColor="transparent" // equivalent to text-transparent in Tailwind
+      >
+        TurboSwap <br />
+      </Heading>
+      <Heading
+        as="h3"
+        fontSize="3xl" // equivalent to text-6xl in Tailwind
+        fontWeight="extrabold" // equivalent to font-extrabold in Tailwind
+        bgGradient="linear(to-r, cyan.400, pink.500)" // gradient background
+        bgClip="text" // bg-clip-text equivalent
+        textColor="transparent" // equivalent to text-transparent in Tailwind
+      >
+        Lightning Fast DEX on Eclipse Network
+      </Heading>
+
       <HStack alignSelf="flex-end" my={[1, 0]}>
         <SlippageAdjuster />
         <Tooltip
