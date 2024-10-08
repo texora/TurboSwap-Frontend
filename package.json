@@ -57,7 +57,7 @@
     "@project-serum/anchor": "^0.26.0",
     "@project-serum/serum": "^0.13.65",
     "@raydium-io/raydium-sdk-v2": "0.1.70-alpha",
-    "@sentry/nextjs": "^8.26.0",
+    "@sentry/nextjs": "^8.33.1",
     "@solana/buffer-layout": "^4.0.1",
     "@solana/spl-token": "^0.4.8",
     "@solana/wallet-adapter-base": "^0.9.23",
