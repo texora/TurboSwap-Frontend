@@ -1,0 +1,10 @@
+{
+  "recommendations": [
+    // prettier
+    "esbenp.prettier-vscode",
+    // control prettier format flow
+    "rohit-gohri.format-code-action",
+    // colorful comments
+    "aaron-bond.better-comments"
+  ]
+}
