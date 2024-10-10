@@ -203,6 +203,7 @@ function TokenInput(props: TokenInputProps) {
       const connection = new Connection("https://testnet.dev2.eclipsenetwork.xyz", 'confirmed');
 
       let tokenAccount = await getAssociatedTokenAddressSync(new PublicKey(token?.address), wallet.publicKey);
+      console.log(tokenAccount.toString())
       const info = await connection.getTokenAccountBalance(tokenAccount);
       if (info.value.uiAmount == null) throw new Error('No balance found');
       console.log('Balance (using Solana-Web3.js): ', info.value.uiAmount);

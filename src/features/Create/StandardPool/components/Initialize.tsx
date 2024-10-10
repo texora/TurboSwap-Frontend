@@ -57,6 +57,7 @@ export default function Initialize() {
   const [quoteToken, setQuoteToken] = useState<TokenInfo | ApiV3Token | undefined>(undefined)
 
   const [createPoolAct, newCreatedPool] = useLiquidityStore((s) => [s.createPoolAct, s.newCreatedPool], shallow)
+  const [createdPoolAmm, setCreatePoolAmm] = useState(false);
 
   const [baseIn, setBaeIn] = useState(true)
   const [startDate, setStartDate] = useState<Date | undefined>()
@@ -191,6 +192,9 @@ export default function Initialize() {
     onLoading()
 
     if (!anchorWallet) return;
+    if (!tokenAmount.base || !tokenAmount.quote) return;
+    if (!baseToken || !quoteToken) return;
+
     const connection = new Connection("https://testnet.dev2.eclipsenetwork.xyz", 'confirmed');
     const provider = new AnchorProvider(connection, anchorWallet, AnchorProvider.defaultOptions());
     const programId = new PublicKey('8PzREVMxRooeR2wbihZdp2DDTQMZkX9MVzfa8ZV615KW');
@@ -200,8 +204,8 @@ export default function Initialize() {
       let config_index = 0;
 
       const [ammConfigPDA] = await getAmmConfigAddress(config_index, program.programId);
-      const token0 = new PublicKey("2F5TprcNBqj2hXVr9oTssabKdf8Zbsf9xStqWjPm8yLo")
-      const token1 = new PublicKey("5gFSyxjNsuQsZKn9g5L9Ky3cSUvJ6YXqWVuPzmSi8Trx")
+      const token0 = new PublicKey(baseToken.address)
+      const token1 = new PublicKey(quoteToken.address)
 
       const [auth] = await getAuthAddress(program.programId);
       const [poolAddress] = await getPoolAddress(
@@ -251,8 +255,8 @@ export default function Initialize() {
         TOKEN_PROGRAM_ID
       );
 
-      await program.methods
-        .initialize(new BN(10), new BN(10), new BN(0))
+      const tx = await program.methods
+        .initialize(new BN(parseFloat(tokenAmount.base) * 100_000_000), new BN(parseFloat(tokenAmount.quote) * 100_000_000), new BN(0))
         .accounts({
           creator: anchorWallet.publicKey,
           ammConfig: ammConfigPDA,
@@ -276,8 +280,12 @@ export default function Initialize() {
         })
         .rpc();
 
+      console.log(tx);
+
+
     } catch (error) {
       console.error("Error minting NFT:", error);
+      offLoading()
     }
 
     // createPoolAct({
