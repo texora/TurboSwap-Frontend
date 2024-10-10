@@ -227,28 +227,29 @@ function TokenInput(props: TokenInputProps) {
 
   const handleSelectToken = useEvent((token: TokenInfo) => {
     const isFreeze = isFreezeToken(token)
-    if (isFreeze) {
-      setFreezeToken(token)
-    }
-    const shouldShowUnknownTokenConfirm = isUnknownToken(token)
-    if (shouldShowUnknownTokenConfirm) {
-      setUnknownToken(token)
-      onOpenUnknownTokenConfirm()
-      return
-    }
-    if (isFreeze) {
-      if (name === 'swap') {
-        onOpenFreezeTokenConfirm()
-        return
-      } else {
-        // toastSubject.next({
-        //   title: t('token_selector.token_freeze_warning'),
-        //   description: t('token_selector.token_has_freeze_disable'),
-        //   status: 'warning'
-        // })
-      }
-      // return
-    }
+    // if (isFreeze) {
+    //   setFreezeToken(token)
+    // }
+    // const shouldShowUnknownTokenConfirm = isUnknownToken(token)
+    // console.log(shouldShowUnknownTokenConfirm)
+    // if (shouldShowUnknownTokenConfirm) {
+    //   setUnknownToken(token)
+    //   onOpenUnknownTokenConfirm()
+    //   return
+    // }
+    // if (isFreeze) {
+    //   if (name === 'swap') {
+    //     onOpenFreezeTokenConfirm()
+    //     return
+    //   } else {
+    //     // toastSubject.next({
+    //     //   title: t('token_selector.token_freeze_warning'),
+    //     //   description: t('token_selector.token_has_freeze_disable'),
+    //     //   status: 'warning'
+    //     // })
+    //   }
+    //   // return
+    // }
     onTokenChange?.(token)
     onClose()
   })

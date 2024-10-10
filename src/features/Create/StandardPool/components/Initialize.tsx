@@ -37,9 +37,11 @@ import useInitPoolSchema from '../hooks/useInitPoolSchema'
 import useBirdeyeTokenPrice from '@/hooks/token/useBirdeyeTokenPrice'
 import { useWallet } from '@solana/wallet-adapter-react';
 import { IDL } from '@/idl/raydium_cp_swap';
-import { Connection, PublicKey, SystemProgram } from '@solana/web3.js';
+import { Connection, PublicKey, SystemProgram, SYSVAR_RENT_PUBKEY } from '@solana/web3.js';
 import { Program, AnchorProvider, BN, utils } from '@project-serum/anchor';
-import { getAmmConfigAddress } from '@/utils/pda'
+import { getAmmConfigAddress, getAuthAddress, getPoolAddress, getPoolLpMintAddress, getPoolVaultAddress, getOrcleAccountAddress } from '@/utils/pda'
+import { getOrCreateAssociatedTokenAccount, getAssociatedTokenAddressSync, TOKEN_PROGRAM_ID } from "@solana/spl-token";
+import { ASSOCIATED_PROGRAM_ID } from '@project-serum/anchor/dist/cjs/utils/token'
 
 import Decimal from 'decimal.js'
 import dayjs from 'dayjs'
@@ -50,7 +52,9 @@ export default function Initialize() {
   const tokenMap = useTokenStore((s) => s.tokenMap)
   const [inputMint, setInputMint] = useState<string>(PublicKey.default.toBase58())
   const [outputMint, setOutputMint] = useState<string>(RAYMint.toBase58())
-  const [baseToken, quoteToken] = [tokenMap.get(inputMint), tokenMap.get(outputMint)]
+  // const [baseToken, quoteToken] = [tokenMap.get(inputMint), tokenMap.get(outputMint)]
+  const [baseToken, setBaseToken] = useState<TokenInfo | ApiV3Token | undefined>(undefined);
+  const [quoteToken, setQuoteToken] = useState<TokenInfo | ApiV3Token | undefined>(undefined)
 
   const [createPoolAct, newCreatedPool] = useLiquidityStore((s) => [s.createPoolAct, s.newCreatedPool], shallow)
 
@@ -84,6 +88,22 @@ export default function Initialize() {
     mint2: outputMint ? solToWSol(outputMint || '').toString() : '',
     type: PoolFetchType.Standard
   })
+
+  // async function getTokenBalanceWeb3(connection: Connection, walletAddress: PublicKey) {
+  //   let tokenAccount = await getAssociatedTokenAddressSync(new PublicKey(inputMint), walletAddress);
+  //   const info = await connection.getTokenAccountBalance(tokenAccount);
+  //   if (info.value.uiAmount == null) throw new Error('No balance found');
+  //   console.log('Balance (using Solana-Web3.js): ', info.value.uiAmount);
+  //   return info.value.uiAmount;
+  // }
+
+  // const poolData: any = useMemo(
+  //   async () => {
+  //     if (wallet.publicKey)
+  //       await getTokenBalanceWeb3(new Connection("https://testnet.dev2.eclipsenetwork.xyz"), wallet.publicKey)
+
+  //   }, [inputMint, outputMint]
+  // )
 
   const existingPools: Map<string, string> = useMemo(
     () =>
@@ -141,10 +161,12 @@ export default function Initialize() {
       if (side === 'input') {
         setInputMint(token.address)
         setOutputMint((mint) => (token.address === mint ? '' : mint))
+        setBaseToken(token)
       }
       if (side === 'output') {
         setOutputMint(token.address)
         setInputMint((mint) => (token.address === mint ? '' : mint))
+        setQuoteToken(token)
       }
     },
     [inputMint, outputMint]
@@ -169,30 +191,84 @@ export default function Initialize() {
     const program = new Program(IDL, programId, provider);
 
     try {
-
-      let config_index = 0
-      let tradeFeeRate = new BN(10)
-      let protocolFeeRate = new BN(1000)
-      let fundFeeRate = new BN(25000)
-      let create_fee = new BN(0)
+      let config_index = 0;
 
       const [ammConfigPDA] = await getAmmConfigAddress(config_index, program.programId);
+      const token0 = new PublicKey("2F5TprcNBqj2hXVr9oTssabKdf8Zbsf9xStqWjPm8yLo")
+      const token1 = new PublicKey("5gFSyxjNsuQsZKn9g5L9Ky3cSUvJ6YXqWVuPzmSi8Trx")
 
-      console.log(ammConfigPDA)
+      const [auth] = await getAuthAddress(program.programId);
+      const [poolAddress] = await getPoolAddress(
+        ammConfigPDA,
+        token0,
+        token1,
+        program.programId
+      );
+      const [lpMintAddress] = await getPoolLpMintAddress(
+        poolAddress,
+        program.programId
+      );
+      const [vault0] = await getPoolVaultAddress(
+        poolAddress,
+        token0,
+        program.programId
+      );
+      const [vault1] = await getPoolVaultAddress(
+        poolAddress,
+        token1,
+        program.programId
+      );
+      const [creatorLpTokenAddress] = await PublicKey.findProgramAddress(
+        [
+          anchorWallet.publicKey.toBuffer(),
+          TOKEN_PROGRAM_ID.toBuffer(),
+          lpMintAddress.toBuffer(),
+        ],
+        ASSOCIATED_PROGRAM_ID
+      );
 
-      const tx = await program.methods.createAmmConfig(
-        config_index,
-        tradeFeeRate,
-        protocolFeeRate,
-        fundFeeRate,
-        create_fee,
-      ).accounts({
-        owner: anchorWallet.publicKey,
-        ammConfig: ammConfigPDA,
-        systemProgram: SystemProgram.programId,
-      }).rpc();
+      const [observationAddress] = await getOrcleAccountAddress(
+        poolAddress,
+        program.programId
+      );
 
-      console.log("Transaction ", tx);
+      const creatorToken0 = getAssociatedTokenAddressSync(
+        token0,
+        anchorWallet.publicKey,
+        false,
+        TOKEN_PROGRAM_ID
+      );
+      const creatorToken1 = getAssociatedTokenAddressSync(
+        token1,
+        anchorWallet.publicKey,
+        false,
+        TOKEN_PROGRAM_ID
+      );
+
+      await program.methods
+        .initialize(new BN(10), new BN(10), new BN(0))
+        .accounts({
+          creator: anchorWallet.publicKey,
+          ammConfig: ammConfigPDA,
+          authority: auth,
+          poolState: poolAddress,
+          token0Mint: token0,
+          token1Mint: token1,
+          lpMint: lpMintAddress,
+          creatorToken0,
+          creatorToken1,
+          creatorLpToken: creatorLpTokenAddress,
+          token0Vault: vault0,
+          token1Vault: vault1,
+          // createPoolFee: poolFee,
+          observationState: observationAddress,
+          tokenProgram: TOKEN_PROGRAM_ID,
+          token0Program: TOKEN_PROGRAM_ID,
+          token1Program: TOKEN_PROGRAM_ID,
+          systemProgram: SystemProgram.programId,
+          rent: SYSVAR_RENT_PUBKEY,
+        })
+        .rpc();
 
     } catch (error) {
       console.error("Error minting NFT:", error);
@@ -211,6 +287,8 @@ export default function Initialize() {
     //   onFinally: offLoading
     // })
   }
+
+  if (baseToken) console.log(wsolToSolToken(baseToken))
 
   return (
     <VStack borderRadius="20px" w="full" bg={colors.backgroundLight} p={6} spacing={5}>
@@ -348,7 +426,7 @@ export default function Initialize() {
         </Flex>
       </Flex>
       {/* start time */}
-      <Flex direction="column" w="full" gap={3}>
+      {/* <Flex direction="column" w="full" gap={3}>
         <Text fontWeight="medium" textAlign="left" fontSize="sm">
           {t('field.start_time')}:
         </Text>
@@ -464,7 +542,7 @@ export default function Initialize() {
         <Text color="red" my="-2">
           {tokenAmount.base || tokenAmount.quote ? error : ''}
         </Text>
-      </Flex>
+      </Flex> */}
       <HStack w="full" spacing={4} mt={2}>
         <Button w="full" isLoading={isLoading} isDisabled={false} onClick={onInitializeClick}>
           {t('create_standard_pool.button_initialize_liquidity_pool')}
