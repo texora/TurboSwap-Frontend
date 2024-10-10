@@ -162,11 +162,17 @@ export default function Initialize() {
         setInputMint(token.address)
         setOutputMint((mint) => (token.address === mint ? '' : mint))
         setBaseToken(token)
+        if (token.address === quoteToken?.address) {
+          setQuoteToken(undefined)
+        }
       }
       if (side === 'output') {
         setOutputMint(token.address)
         setInputMint((mint) => (token.address === mint ? '' : mint))
         setQuoteToken(token)
+        if (token.address === baseToken?.address) {
+          setBaseToken(undefined)
+        }
       }
     },
     [inputMint, outputMint]
