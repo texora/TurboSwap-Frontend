@@ -32,6 +32,9 @@ import TokenSelectDialog, { TokenSelectDialogProps } from './TokenSelectDialog'
 import TokenUnknownAddDialog from './TokenSelectDialog/components/TokenUnknownAddDialog'
 import TokenFreezeDialog from './TokenSelectDialog/components/TokenFreezeDialog'
 import { TokenListHandles } from './TokenSelectDialog/components/TokenList'
+import { getOrCreateAssociatedTokenAccount, getAssociatedTokenAddressSync, TOKEN_PROGRAM_ID } from "@solana/spl-token";
+import { Connection, PublicKey, SystemProgram, SYSVAR_RENT_PUBKEY } from '@solana/web3.js';
+import { useWallet } from '@solana/wallet-adapter-react';
 
 export const DEFAULT_SOL_RESERVER = 0.01
 export interface TokenInputProps extends Pick<TokenSelectDialogProps, 'filterFn'> {
@@ -139,6 +142,7 @@ function TokenInput(props: TokenInputProps) {
   const { isOpen, onOpen, onClose } = useDisclosure()
   const { isOpen: isOpenUnknownTokenConfirm, onOpen: onOpenUnknownTokenConfirm, onClose: onCloseUnknownTokenConfirm } = useDisclosure()
   const { isOpen: isOpenFreezeTokenConfirm, onOpen: onOpenFreezeTokenConfirm, onClose: onCloseFreezeTokenConfirm } = useDisclosure()
+  const wallet = useWallet();
 
   const size = inputSize ?? isMobile ? 'sm' : 'md'
   const sizes = {
@@ -181,6 +185,7 @@ function TokenInput(props: TokenInputProps) {
 
   const [unknownToken, setUnknownToken] = useState<TokenInfo | ApiV3Token>()
   const [freezeToken, setFreezeToken] = useState<TokenInfo | ApiV3Token>()
+  const [amount, setAmount] = useState(0);
 
   // const handleValidate = useEvent((value: string) => {
   //   return numberRegExp.test(value)
@@ -193,25 +198,53 @@ function TokenInput(props: TokenInputProps) {
     onFocus?.()
   })
 
-  const getBalanceString = useEvent((amount: string) => {
-    if (token?.address !== SOL_INFO.address || !balanceMaxString) return amount
-    if (new Decimal(balanceMaxString).sub(amount).gte(solReserveAmount)) return amount
-    let decimal = new Decimal(amount).sub(solReserveAmount)
-    if (decimal.lessThan(0)) decimal = new Decimal(0)
-    return trimTrailZero(decimal.toFixed(token.decimals))!
+  const fetchAmount = async () => {
+    if (token && wallet.publicKey) {
+      const connection = new Connection("https://testnet.dev2.eclipsenetwork.xyz", 'confirmed');
+
+      let tokenAccount = await getAssociatedTokenAddressSync(new PublicKey(token?.address), wallet.publicKey);
+      const info = await connection.getTokenAccountBalance(tokenAccount);
+      if (info.value.uiAmount == null) throw new Error('No balance found');
+      console.log('Balance (using Solana-Web3.js): ', info.value.uiAmount);
+      setAmount(info.value.uiAmount)
+    }
+  }
+
+  useEffect(() => {
+    fetchAmount();
+  }, [token])
+
+  const getBalanceString = useEvent(async (half: boolean) => {
+    if (token && wallet.publicKey) {
+      const connection = new Connection("https://testnet.dev2.eclipsenetwork.xyz", 'confirmed');
+
+      let tokenAccount = await getAssociatedTokenAddressSync(new PublicKey(token?.address), wallet.publicKey);
+      const info = await connection.getTokenAccountBalance(tokenAccount);
+      if (info.value.uiAmount == null) throw new Error('No balance found');
+      console.log('Balance (using Solana-Web3.js): ', info.value.uiAmount);
+      if (half) return (info.value.uiAmount / 2).toString();
+      return info.value.uiAmount.toString();
+    }
+    return "0";
+
+    // if (token?.address !== SOL_INFO.address || !balanceMaxString) return amount
+    // if (new Decimal(balanceMaxString).sub(amount).gte(solReserveAmount)) return amount
+    // let decimal = new Decimal(amount).sub(solReserveAmount)
+    // if (decimal.lessThan(0)) decimal = new Decimal(0)
+    // return trimTrailZero(decimal.toFixed(token.decimals))!
   })
 
-  const handleClickMax = useEvent(() => {
+  const handleClickMax = useEvent(async () => {
     if (disableClickBalance) return
     if (!maxString) return
     handleFocus()
-    onChange?.(getBalanceString(maxString))
+    onChange?.(amount.toString())
   })
 
-  const handleClickHalf = useEvent(() => {
+  const handleClickHalf = useEvent(async () => {
     if (!maxString) return
     handleFocus()
-    onChange?.(getBalanceString(maxDecimal.div(2).toString()))
+    onChange?.((amount / 2).toString())
   })
 
   const isUnknownToken = useEvent((token: TokenInfo) => {
@@ -358,7 +391,7 @@ function TokenInput(props: TokenInputProps) {
               sx={{ textUnderlineOffset: '1px' }}
               _hover={{ textDecorationThickness: '1.5px', textUnderlineOffset: '2px' }}
             >
-              {formatCurrency(maxString, { decimalPlaces: token?.decimals })}
+              {formatCurrency(amount.toString(), { decimalPlaces: token?.decimals })}
             </Text>
           </HStack>
         )}
