@@ -280,8 +280,6 @@ export default function Initialize() {
         })
         .rpc();
 
-      console.log(tx);
-
 
     } catch (error) {
       console.error("Error minting NFT:", error);

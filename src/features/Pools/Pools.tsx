@@ -59,6 +59,7 @@ import { getFavoritePoolCache, POOL_SORT_KEY } from './util'
 import i18n from '@/i18n'
 import { setUrlQuery, useRouteQuery } from '@/utils/routeTools'
 import { urlToMint, mintToUrl } from '@/utils/token'
+import { poolinfo } from '@/utils/poolinfo'
 
 export type PoolPageQuery = {
   token?: string
@@ -284,20 +285,22 @@ export default function Pools() {
   const isSearchLoadEnded = isSearchPublicKey ? !isSearchIdLoading && isSearchMintLoadEnded : isSearchMintLoadEnded
   const isNotFound = (searchTokens.length > 0 || isSearchPublicKey) && !isSearchLoading && !searchData.length
 
-  const data = hasSearch || searchIdData?.length ? searchData : orgData
+  // const data = hasSearch || searchIdData?.length ? searchData : orgData
+  // const data = poolinfo
   const isLoading = hasSearch ? isSearchLoading : isOrgLoading
   const isLoadEnded = hasSearch ? isSearchLoadEnded : isOrgLoadedEnd
-  const loadMore = hasSearch ? () => {} : orgLoadMore
+  const loadMore = hasSearch ? () => { } : orgLoadMore
   const sortedData = useMemo(() => {
-    // if (!favoritePools.size) return data
-    const favorite: FormattedPoolInfoItem[] = []
-    const normal: FormattedPoolInfoItem[] = []
-    data.forEach((p) => {
-      if (favoritePools.has(p.id)) return favorite.push(p)
-      normal.push(p)
-    })
-    return [...favorite, ...normal]
-  }, [data, Array.from(favoritePools).toString()])
+    return [poolinfo]
+    // // if (!favoritePools.size) return data
+    // const favorite: FormattedPoolInfoItem[] = []
+    // const normal: FormattedPoolInfoItem[] = []
+    // data.forEach((p) => {
+    //   if (favoritePools.has(p.id)) return favorite.push(p)
+    //   normal.push(p)
+    // })
+    // return [...favorite, ...normal]
+  }, [poolinfo])
 
   const prevSearch = usePrevious(search)
   const sortRef = useRef<string>('default')
@@ -400,7 +403,7 @@ export default function Pools() {
             paddingX={appLayoutPaddingX}
             backgroundColor={['transparent', colors.backgroundLight30]}
           >
-            <GridItem area={'tabs'}>
+            {/* <GridItem area={'tabs'}>
               <Desktop>
                 <Tabs
                   items={tabItems}
@@ -428,7 +431,7 @@ export default function Pools() {
                   onChange={(value) => onPoolValueChange(value)}
                 />
               </Mobile>
-            </GridItem>
+            </GridItem> */}
 
             <GridItem area={'search'}>
               <TokenSearchInput
