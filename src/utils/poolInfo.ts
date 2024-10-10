@@ -1,3 +1,43 @@
+import {
+  Box,
+  BoxProps,
+  Grid,
+  GridItem,
+  HStack,
+  InputGroup,
+  Spacer,
+  StackProps,
+  SystemStyleObject,
+  Text,
+  useColorMode,
+  useDisclosure,
+  Input
+} from '@chakra-ui/react'
+import { ApiV3Token, TokenInfo, SOL_INFO } from '@raydium-io/raydium-sdk-v2'
+import Decimal from 'decimal.js'
+import React, { ReactNode, useEffect, useState, useRef } from 'react'
+import useTokenPrice from '@/hooks/token/useTokenPrice'
+import { useEvent } from '@/hooks/useEvent'
+import { toastSubject } from '@/hooks/toast/useGlobalToast'
+import BalanceWalletIcon from '@/icons/misc/BalanceWalletIcon'
+import ChevronDownIcon from '@/icons/misc/ChevronDownIcon'
+import { useAppStore, useTokenAccountStore, useTokenStore } from '@/store'
+import { colors } from '@/theme/cssVariables'
+import { trimTrailZero, formatCurrency, formatToRawLocaleStr, detectedSeparator } from '@/utils/numberish/formatter'
+
+import { t } from 'i18next'
+import { getOrCreateAssociatedTokenAccount, getAssociatedTokenAddressSync, TOKEN_PROGRAM_ID } from "@solana/spl-token";
+import { Connection, PublicKey, SystemProgram, SYSVAR_RENT_PUBKEY } from '@solana/web3.js';
+import { useWallet } from '@solana/wallet-adapter-react';
+
+export const epsGetPoolInfo = async () => {
+  const epsWallet = useWallet();
+  const epsPoolAddress = ["A6fVkHYNEtfBcMdUo9rVg92SAA5AhePwvNe1sqLsc7pQ"];
+
+
+}
+
+
 export const poolinfo = {
   "type": "Standard",
   "programId": "8PzREVMxRooeR2wbihZdp2DDTQMZkX9MVzfa8ZV615KW",
