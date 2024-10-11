@@ -163,7 +163,7 @@ export default forwardRef<
   const USDC = useMemo(() => eclipseTokenInfo.filter((i) => i.key === USDCMint)[0]?.value, [eclipseTokenInfo])
 
   const [usdcDisabled, solDisabled, rayDisabled, usdtDisabled] = filterFn
-    ? [!USDC || !filterFn(USDC), !SOL || !filterFn(SOL), !RAY || !filterFn(RAY), !USDT || !filterFn(USDT)]
+    ? [!BTC || !filterFn(BTC), !ETH || !filterFn(ETH), !USDC || !filterFn(USDC)]
     : [false, false, false, false]
 
   const renderTokenItem = useCallback(
