@@ -59,7 +59,7 @@ import { getFavoritePoolCache, POOL_SORT_KEY } from './util'
 import i18n from '@/i18n'
 import { setUrlQuery, useRouteQuery } from '@/utils/routeTools'
 import { urlToMint, mintToUrl } from '@/utils/token'
-import { poolinfo } from '@/utils/poolinfo'
+import { epsGetPoolInfo } from '@/utils/poolinfo'
 
 export type PoolPageQuery = {
   token?: string
@@ -284,6 +284,16 @@ export default function Pools() {
   const isSearchLoading = isSearchPublicKey ? isSearchIdLoading || isSearchMintLoading : isSearchMintLoading
   const isSearchLoadEnded = isSearchPublicKey ? !isSearchIdLoading && isSearchMintLoadEnded : isSearchMintLoadEnded
   const isNotFound = (searchTokens.length > 0 || isSearchPublicKey) && !isSearchLoading && !searchData.length
+  const [poolinfo, setPoolinfo] = useState<any>([])
+
+  const fetchPoolInfo = async () => {
+    const pool = await epsGetPoolInfo();
+    setPoolinfo(pool)
+  }
+
+  useEffect(() => {
+    fetchPoolInfo();
+  }, [])
 
   // const data = hasSearch || searchIdData?.length ? searchData : orgData
   // const data = poolinfo
@@ -291,7 +301,7 @@ export default function Pools() {
   const isLoadEnded = hasSearch ? isSearchLoadEnded : isOrgLoadedEnd
   const loadMore = hasSearch ? () => { } : orgLoadMore
   const sortedData = useMemo(() => {
-    return [poolinfo]
+    return poolinfo
     // // if (!favoritePools.size) return data
     // const favorite: FormattedPoolInfoItem[] = []
     // const normal: FormattedPoolInfoItem[] = []
