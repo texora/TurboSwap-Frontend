@@ -59,7 +59,7 @@ import { getFavoritePoolCache, POOL_SORT_KEY } from './util'
 import i18n from '@/i18n'
 import { setUrlQuery, useRouteQuery } from '@/utils/routeTools'
 import { urlToMint, mintToUrl } from '@/utils/token'
-import { epsGetPoolInfo } from '@/utils/poolinfo'
+import { epsGetPoolInfo } from '@/utils/poolInfo'
 import { getTvlData } from './tvldata'
 
 export type PoolPageQuery = {
