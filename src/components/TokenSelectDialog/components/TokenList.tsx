@@ -22,6 +22,7 @@ import { isValidPublicKey } from '@/utils/publicKey'
 import { formatToRawLocaleStr } from '@/utils/numberish/formatter'
 import useTokenPrice, { TokenPrice } from '@/hooks/token/useTokenPrice'
 import { eclipseTokenList } from '@/utils/eclipseTokenList'
+import Tokenitem from './Tokenitem'
 
 const perPage = 30
 
@@ -157,9 +158,9 @@ export default forwardRef<
   const RAY = useMemo(() => orgTokenMap.get(RAYMint), [orgTokenMap])
   const USDT = useMemo(() => orgTokenMap.get(USDTMint), [orgTokenMap])
 
-  const BTC = useMemo(() => eclipseTokenInfo.filter(i => i.key === BTCMint)[0]?.value, [eclipseTokenInfo])
-  const ETH = useMemo(() => eclipseTokenInfo.filter(i => i.key === ETHMint)[0]?.value, [eclipseTokenInfo])
-  const USDC = useMemo(() => eclipseTokenInfo.filter(i => i.key === USDCMint)[0]?.value, [eclipseTokenInfo])
+  const BTC = useMemo(() => eclipseTokenInfo.filter((i) => i.key === BTCMint)[0]?.value, [eclipseTokenInfo])
+  const ETH = useMemo(() => eclipseTokenInfo.filter((i) => i.key === ETHMint)[0]?.value, [eclipseTokenInfo])
+  const USDC = useMemo(() => eclipseTokenInfo.filter((i) => i.key === USDCMint)[0]?.value, [eclipseTokenInfo])
 
   const [usdcDisabled, solDisabled, rayDisabled, usdtDisabled] = filterFn
     ? [!USDC || !filterFn(USDC), !SOL || !filterFn(SOL), !RAY || !filterFn(RAY), !USDT || !filterFn(USDT)]
@@ -225,7 +226,7 @@ export default forwardRef<
             {t('common.balance')}/{t('common.address')}
           </Heading>
         </Flex>
-        {isUnknownNewToken ? (
+        {/* {isUnknownNewToken ? (
           <Box padding={4} gap={4} flexDirection="column" display="flex">
             <Flex alignItems="center">
               <Text flex="1">Symbol:</Text>
@@ -285,7 +286,17 @@ export default forwardRef<
             </List>
           </Box>
         )}
+      </Flex> */}
+
+        <Box padding={4} gap={4} flexDirection="column" display="flex">
+          <Flex alignItems="center">
+            <Box>
+              <Tokenitem chooseToken={(token: TokenInfo) => onChooseToken(token)} />
+            </Box>
+          </Flex>
+        </Box>
       </Flex>
+
       {!isUnknownNewToken ? (
         <Box borderRadius={'8px'} background={colors.modalContainerBg} p="12px" mb="24px">
           <Text opacity={'50%'} fontWeight={'normal'} fontSize={'12px'} lineHeight={'16px'} color={colors.textSecondary}>
