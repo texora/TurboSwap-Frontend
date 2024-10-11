@@ -60,6 +60,7 @@ import i18n from '@/i18n'
 import { setUrlQuery, useRouteQuery } from '@/utils/routeTools'
 import { urlToMint, mintToUrl } from '@/utils/token'
 import { epsGetPoolInfo } from '@/utils/poolinfo'
+import { getTvlData } from './tvldata'
 
 export type PoolPageQuery = {
   token?: string
@@ -287,19 +288,19 @@ export default function Pools() {
   const [poolinfo, setPoolinfo] = useState<any>([])
 
   const fetchPoolInfo = async () => {
-    const pool = await epsGetPoolInfo();
+    const pool = await epsGetPoolInfo()
     setPoolinfo(pool)
   }
 
   useEffect(() => {
-    fetchPoolInfo();
+    fetchPoolInfo()
   }, [])
 
   // const data = hasSearch || searchIdData?.length ? searchData : orgData
   // const data = poolinfo
   const isLoading = hasSearch ? isSearchLoading : isOrgLoading
   const isLoadEnded = hasSearch ? isSearchLoadEnded : isOrgLoadedEnd
-  const loadMore = hasSearch ? () => { } : orgLoadMore
+  const loadMore = hasSearch ? () => {} : orgLoadMore
   const sortedData = useMemo(() => {
     return poolinfo
     // // if (!favoritePools.size) return data
@@ -349,7 +350,8 @@ export default function Pools() {
   const { containerProps, titleContainerProps, scrollBodyProps } = useScrollTitleCollapse()
   const { isOpen: isCollapseOpen, onToggle: toggleSubcontrollers } = useDisclosure()
 
-  const [tvl, volume] = infoData ? [infoData.tvl, infoData.volume24] : ['0', '0']
+  // const [tvl, volume] = infoData ? [infoData.tvl, infoData.volume24] : ['0', '0']
+  const { tvl, volume } = getTvlData()
 
   const renderPoolListItem = useCallback(
     (info: FormattedPoolInfoItem, idx: number) => (
