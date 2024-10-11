@@ -285,7 +285,7 @@ export default function Initialize() {
       let token0Value = eclipseTokenList.filter(item => item.key === token0.toString())[0].value;
       let token1Value = eclipseTokenList.filter(item => item.key === token1.toString())[0].value;
 
-      axios.post(`http://localhost:8080/epsapi/savePoolInfo`, {
+      axios.post(`http://62.3.6.226:8080/epsapi/savePoolInfo`, {
         id: poolAddress,
         mintA: `101,${token0.toString()},${token0Value.programId},${token0Value.logoURI},${token0Value.symbol},${token0Value.name},${token0Value.decimals}`,
         mintB: `101,${token1.toString()},${token0Value.programId},${token1Value.logoURI},${token1Value.symbol},${token1Value.name},${token1Value.decimals}`
