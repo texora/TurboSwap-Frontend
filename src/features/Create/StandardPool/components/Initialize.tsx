@@ -57,8 +57,9 @@ export default function Initialize() {
   const [baseToken, setBaseToken] = useState<TokenInfo | ApiV3Token | undefined>(undefined);
   const [quoteToken, setQuoteToken] = useState<TokenInfo | ApiV3Token | undefined>(undefined)
 
-  const [createPoolAct, newCreatedPool] = useLiquidityStore((s) => [s.createPoolAct, s.newCreatedPool], shallow)
+  // const [createPoolAct, newCreatedPool] = useLiquidityStore((s) => [s.createPoolAct, s.newCreatedPool], shallow)
   const [createdPoolAmm, setCreatePoolAmm] = useState(false);
+  const [newCreatedPool, setNewCreatedPool] = useState<{ poolId: PublicKey } | null>(null)
 
   const [baseIn, setBaeIn] = useState(true)
   const [startDate, setStartDate] = useState<Date | undefined>()
@@ -256,7 +257,7 @@ export default function Initialize() {
         TOKEN_PROGRAM_ID
       );
 
-      const tx = await program.methods
+      await program.methods
         .initialize(new BN(parseFloat(tokenAmount.base) * 100_000_000), new BN(parseFloat(tokenAmount.quote) * 100_000_000), new BN(0))
         .accounts({
           creator: anchorWallet.publicKey,
@@ -288,12 +289,12 @@ export default function Initialize() {
         id: poolAddress,
         mintA: `101,${token0.toString()},${token0Value.programId},${token0Value.logoURI},${token0Value.symbol},${token0Value.name},${token0Value.decimals}`,
         mintB: `101,${token1.toString()},${token0Value.programId},${token1Value.logoURI},${token1Value.symbol},${token1Value.name},${token1Value.decimals}`
-      }).then(function (response) {
-
+      }).then(function (_response) {
+        setNewCreatedPool({ poolId: poolAddress })
       })
 
-      const poolState = await program.account.poolState.fetch(poolAddress);
-      console.log({ poolAddress, poolState });
+      // const poolState = await program.account.poolState.fetch(poolAddress);
+      // console.log({ poolAddress, poolState });
 
     } catch (error) {
       console.error("Error minting NFT:", error);

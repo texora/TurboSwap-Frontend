@@ -9,10 +9,6 @@ import { eclipseTokenList } from '@/utils/eclipseTokenList'
 //   onClose: () => void
 // }
 
-const handleClick = (item: typeof eclipseTokenList[0]) => {
-  console.log(item.value) // Log the item value
-}
-
 export default function TokenItem(props: { chooseToken: Function }) {
   return (
     <Flex direction="column" className="iteams">
