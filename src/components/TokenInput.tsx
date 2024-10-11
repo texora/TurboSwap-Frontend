@@ -35,6 +35,8 @@ import { TokenListHandles } from './TokenSelectDialog/components/TokenList'
 import { getOrCreateAssociatedTokenAccount, getAssociatedTokenAddressSync, TOKEN_PROGRAM_ID } from "@solana/spl-token";
 import { Connection, PublicKey, SystemProgram, SYSVAR_RENT_PUBKEY } from '@solana/web3.js';
 import { useWallet } from '@solana/wallet-adapter-react';
+import axios from 'axios'
+import { tokensPrices } from '@/utils/tokenInfo'
 
 export const DEFAULT_SOL_RESERVER = 0.01
 export interface TokenInputProps extends Pick<TokenSelectDialogProps, 'filterFn'> {
@@ -168,8 +170,9 @@ function TokenInput(props: TokenInputProps) {
     mintList: [token?.address]
   })
   const value = shakeValueDecimal(inputValue, token?.decimals)
-  const price = tokenPrice[token?.address || '']?.value
-  const totalPrice = price && value ? new Decimal(price ?? 0).mul(value).toString() : ''
+  const price = tokensPrices[token?.symbol || '']?.price
+  const [totalPrice, setTotalPrice] = useState<number | "">("");
+  // const totalPrice = price && value ? new Decimal(price ?? 0).mul(value).toString() : ''
 
   // balance
   const getTokenBalanceUiAmount = useTokenAccountStore((s) => s.getTokenBalanceUiAmount)
@@ -186,6 +189,18 @@ function TokenInput(props: TokenInputProps) {
   const [unknownToken, setUnknownToken] = useState<TokenInfo | ApiV3Token>()
   const [freezeToken, setFreezeToken] = useState<TokenInfo | ApiV3Token>()
   const [amount, setAmount] = useState(0);
+
+  const getTokenPrice = () => {
+    axios.defaults.headers.common["x-cg-api-key"] = `CG-FFGgJFo6GhYWQTEi7RLo93iw`;
+
+    axios.get(`https://api.coingecko.com/api/v3/simple/token_price/eclipse?contract_addresses=${token?.address}&vs_currencies=usd`)
+      .then(response => console.log(response))
+      .catch(err => console.error(err));
+  }
+
+  useEffect(() => {
+    getTokenPrice();
+  }, [])
 
   // const handleValidate = useEvent((value: string) => {
   //   return numberRegExp.test(value)
@@ -206,6 +221,7 @@ function TokenInput(props: TokenInputProps) {
       if (token.address === "So11111111111111111111111111111111111111112") {
         let balance = await connection.getBalance(wallet.publicKey);
         setAmount(balance)
+        setTotalPrice(price * balance)
       }
       else {
         let tokenAccount = await getAssociatedTokenAddressSync(new PublicKey(token?.address), wallet.publicKey);
@@ -214,12 +230,15 @@ function TokenInput(props: TokenInputProps) {
         if (info.value.uiAmount == null) throw new Error('No balance found');
         console.log('Balance (using Solana-Web3.js): ', info.value.uiAmount);
         setAmount(info.value.uiAmount)
+        setTotalPrice(price * info.value.uiAmount)
       }
     }
   }
 
   useEffect(() => {
     fetchAmount();
+    getTokenPrice();
+
   }, [token])
 
   const getBalanceString = useEvent(async (half: boolean) => {
