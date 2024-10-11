@@ -7,8 +7,7 @@ import { useAppStore, useTokenAccountStore, useTokenStore } from '@/store'
 import { colors } from '@/theme/cssVariables'
 import { Box, Button, Collapse, Flex, HStack, SimpleGrid, Text, useDisclosure, CircularProgress } from '@chakra-ui/react'
 import { ApiV3Token, RAYMint, SOL_INFO, TokenInfo } from '@raydium-io/raydium-sdk-v2'
-import { PublicKey } from '@solana/web3.js'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import shallow from 'zustand/shallow'
 import CircleInfo from '@/icons/misc/CircleInfo'
@@ -25,11 +24,17 @@ import HighRiskAlert from './HighRiskAlert'
 import { useRouteQuery, setUrlQuery } from '@/utils/routeTools'
 import WarningIcon from '@/icons/misc/WarningIcon'
 import dayjs from 'dayjs'
-import { NATIVE_MINT } from '@solana/spl-token'
+import { getAccount, getOrCreateAssociatedTokenAccount, getAssociatedTokenAddressSync, TOKEN_PROGRAM_ID } from "@solana/spl-token";
 import { Trans } from 'react-i18next'
 import { formatToRawLocaleStr } from '@/utils/numberish/formatter'
 import useTokenInfo from '@/hooks/token/useTokenInfo'
 import { debounce } from '@/utils/functionMethods'
+import { useWallet } from '@solana/wallet-adapter-react';
+import { Connection, PublicKey, SystemProgram, SYSVAR_RENT_PUBKEY } from '@solana/web3.js';
+import { Program, AnchorProvider, BN, utils } from '@project-serum/anchor';
+import { IDL } from '@/idl/raydium_cp_swap'
+import { getAmmConfigAddress, getAuthAddress, getPoolAddress, getPoolLpMintAddress, getPoolVaultAddress, getOrcleAccountAddress } from '@/utils/pda'
+import { NATIVE_MINT } from '@solana/spl-token'
 
 export function SwapPanel({
   onInputMintChange,
@@ -40,6 +45,7 @@ export function SwapPanel({
   onOutputMintChange?: (mint: string) => void
   onDirectionNeedReverse?(): void
 }) {
+  const wallet = useWallet();
   const query = useRouteQuery<{ inputMint: string; outputMint: string }>()
   const [urlInputMint, urlOutputMint] = [urlToMint(query.inputMint), urlToMint(query.outputMint)]
   const { inputMint: cacheInput, outputMint: cacheOutput } = getSwapPairCache()
@@ -219,25 +225,153 @@ export function SwapPanel({
     handleClickSwap()
   })
 
-  const handleClickSwap = () => {
-    if (!response) return
-    sendingResult.current = response as ApiSwapV1OutSuccess
-    onSending()
-    swapTokenAct({
-      swapResponse: response as ApiSwapV1OutSuccess,
-      wrapSol: tokenInput?.address === PublicKey.default.toString(),
-      unwrapSol: tokenOutput?.address === PublicKey.default.toString(),
-      onCloseToast: offSending,
-      onConfirmed: () => {
-        setAmountIn('')
-        setNeedPriceUpdatedAlert(false)
-        offSending()
-      },
-      onError: () => {
-        offSending()
-        mutate()
-      }
-    })
+  const anchorWallet = useMemo(() => {
+    if (!wallet.publicKey || !wallet.signTransaction || !wallet.signAllTransactions) return null;
+    return {
+      publicKey: wallet.publicKey,
+      signTransaction: wallet.signTransaction.bind(wallet),
+      signAllTransactions: wallet.signAllTransactions.bind(wallet),
+    };
+  }, [wallet]);
+
+  const handleClickSwap = async () => {
+    try {
+
+      // if (!response) return
+      // sendingResult.current = response as ApiSwapV1OutSuccess
+      if (!anchorWallet) return;
+      if (!inputMint || !outputMint) return;
+
+      onSending()
+
+      const connection = new Connection("https://testnet.dev2.eclipsenetwork.xyz", 'confirmed');
+      const provider = new AnchorProvider(connection, anchorWallet, AnchorProvider.defaultOptions());
+      const programId = new PublicKey('8PzREVMxRooeR2wbihZdp2DDTQMZkX9MVzfa8ZV615KW');
+      const program = new Program(IDL, programId, provider);
+
+      // 
+      const inputToken = new PublicKey(inputMint);
+      const outputToken = new PublicKey(outputMint);
+      const inputTokenProgram = TOKEN_PROGRAM_ID;
+      const outputTokenProgram = TOKEN_PROGRAM_ID;
+      const inputTokenAccountAddr = getAssociatedTokenAddressSync(
+        inputToken,
+        anchorWallet.publicKey,
+        false,
+        inputTokenProgram
+      );
+      const inputTokenAccountBefore = await getAccount(
+        connection,
+        inputTokenAccountAddr,
+        "processed",
+        inputTokenProgram
+      );
+
+      //
+      let amount_in = isSwapBaseIn ? new BN(parseFloat(amountIn) * 100_000_000) : new BN(parseFloat(inputAmount) * 100_000_000);
+      let amount_out = isSwapBaseIn ? new BN(parseFloat(outputAmount) * 100_000_000) : new BN(parseFloat(amountIn) * 100_000_000);
+
+      console.log(amountIn)
+      console.log(inputAmount)
+      console.log(amount_in)
+
+      console.log(outputAmount)
+      console.log(amountIn)
+      console.log(amount_out)
+
+      let config_index = 0;
+
+      const [address, _] = await getAmmConfigAddress(
+        config_index,
+        program.programId
+      );
+      const configAddress = address;
+
+      const [auth] = await getAuthAddress(program.programId);
+      const [poolAddress] = await getPoolAddress(
+        configAddress,
+        inputToken,
+        outputToken,
+        program.programId
+      );
+
+      const [inputVault] = await getPoolVaultAddress(
+        poolAddress,
+        inputToken,
+        program.programId
+      );
+      const [outputVault] = await getPoolVaultAddress(
+        poolAddress,
+        outputToken,
+        program.programId
+      );
+
+      const inputTokenAccount = getAssociatedTokenAddressSync(
+        inputToken,
+        anchorWallet.publicKey,
+        false,
+        inputTokenProgram
+      );
+      const outputTokenAccount = getAssociatedTokenAddressSync(
+        outputToken,
+        anchorWallet.publicKey,
+        false,
+        outputTokenProgram
+      );
+      const [observationAddress] = await getOrcleAccountAddress(
+        poolAddress,
+        program.programId
+      );
+
+      const tx = await program.methods
+        .swapBaseInput(amount_in, new BN(0))
+        .accounts({
+          payer: anchorWallet.publicKey,
+          authority: auth,
+          ammConfig: configAddress,
+          poolState: poolAddress,
+          inputTokenAccount,
+          outputTokenAccount,
+          inputVault,
+          outputVault,
+          inputTokenProgram: inputTokenProgram,
+          outputTokenProgram: outputTokenProgram,
+          inputTokenMint: inputToken,
+          outputTokenMint: outputToken,
+          observationState: observationAddress,
+        })
+        .rpc();
+      console.log(tx);
+
+      const inputTokenAccountAfter = await getAccount(
+        connection,
+        inputTokenAccountAddr,
+        "processed",
+        inputTokenProgram
+      );
+
+      offSending()
+
+      // swapTokenAct({
+      //   swapResponse: response as ApiSwapV1OutSuccess,
+      //   wrapSol: tokenInput?.address === PublicKey.default.toString(),
+      //   unwrapSol: tokenOutput?.address === PublicKey.default.toString(),
+      //   onCloseToast: offSending,
+      //   onConfirmed: () => {
+      //     setAmountIn('')
+      //     setNeedPriceUpdatedAlert(false)
+      //     offSending()
+      //   },
+      //   onError: () => {
+      //     offSending()
+      //     mutate()
+      //   }
+      // })
+    } catch (error) {
+      console.log(error)
+      offSending();
+    }
+
   }
 
   const getCtrSx = (type: 'BaseIn' | 'BaseOut') => {
@@ -360,7 +494,7 @@ export function SwapPanel({
         </Flex>
       )}
       <ConnectedButton
-        isDisabled={new Decimal(amountIn || 0).isZero() || !!swapError || needPriceUpdatedAlert || swapDisabled}
+        // isDisabled={new Decimal(amountIn || 0).isZero() || !!swapError || needPriceUpdatedAlert || swapDisabled}
         isLoading={isComputing || isSending}
         loadingText={<div>{isSending ? t('transaction.transaction_initiating') : isComputing ? t('swap.computing') : ''}</div>}
         onClick={isHighRiskTx ? onHightRiskOpen : handleClickSwap}

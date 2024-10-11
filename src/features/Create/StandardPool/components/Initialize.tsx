@@ -191,11 +191,11 @@ export default function Initialize() {
   }, [wallet]);
 
   const onInitializeClick = async () => {
-    onLoading()
 
     if (!anchorWallet) return;
     if (!tokenAmount.base || !tokenAmount.quote) return;
     if (!baseToken || !quoteToken) return;
+    onLoading()
 
     const connection = new Connection("https://testnet.dev2.eclipsenetwork.xyz", 'confirmed');
     const provider = new AnchorProvider(connection, anchorWallet, AnchorProvider.defaultOptions());
