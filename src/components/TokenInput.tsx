@@ -165,7 +165,8 @@ function TokenInput(props: TokenInputProps) {
 
   // price
   const tokenMap = useTokenStore((s) => s.tokenMap)
-  const token = typeof inputToken === 'string' ? tokenMap.get(inputToken) : inputToken
+  // const token = typeof inputToken === 'string' ? tokenMap.get(inputToken) : inputToken
+  const [token, setToken] = useState<TokenInfo | null>(null)
   const { data: tokenPrice } = useTokenPrice({
     mintList: [token?.address]
   })
@@ -310,6 +311,7 @@ function TokenInput(props: TokenInputProps) {
     //   }
     //   // return
     // }
+    setToken(token)
     onTokenChange?.(token)
     onClose()
   })
