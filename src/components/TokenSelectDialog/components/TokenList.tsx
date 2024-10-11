@@ -21,18 +21,18 @@ import useTokenInfo from '@/hooks/token/useTokenInfo'
 import { isValidPublicKey } from '@/utils/publicKey'
 import { formatToRawLocaleStr } from '@/utils/numberish/formatter'
 import useTokenPrice, { TokenPrice } from '@/hooks/token/useTokenPrice'
+import { eclipseTokenList } from '@/utils/eclipseTokenList'
 
 const perPage = 30
 
 // const USDCMint = 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v'
-const SOLMint = PublicKey.default.toString()
+// const SOLMint = PublicKey.default.toString()
 const RAYMint = '4k3Dyjzvzp8eMZWUXbBCjEvwSkkk59S5iCNLY3QrkX6R'
 const USDTMint = 'Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB'
 
 const BTCMint = "2F5TprcNBqj2hXVr9oTssabKdf8Zbsf9xStqWjPm8yLo"
-const ETHMint = "FjtvYfdfxjBdgtFdHX6AZEPbtowsMhiUF5D53jYxWUba"
+const ETHMint = "So11111111111111111111111111111111111111112"
 const USDCMint = "5gFSyxjNsuQsZKn9g5L9Ky3cSUvJ6YXqWVuPzmSi8Trx"
-
 export interface TokenListHandles {
   resetSearch: () => void
 }
@@ -75,64 +75,7 @@ export default forwardRef<
   const [search, setSearch] = useState('')
   const customTokenInfo = useRef<{ name?: string; symbol?: string }>({})
   const listControllerRef = useRef<ListPropController>()
-  const [eclipseTokenInfo, setEclipseTokenInfo] = useState<any>([]);
-
-  useEffect(() => {
-    const eclipseTokenList = [{
-      "key": "2F5TprcNBqj2hXVr9oTssabKdf8Zbsf9xStqWjPm8yLo",
-      "value": {
-        "chainId": 101,
-        "address": "2F5TprcNBqj2hXVr9oTssabKdf8Zbsf9xStqWjPm8yLo",
-        "programId": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
-        "decimals": 9,
-        "symbol": "BTC",
-        "name": "btc",
-        "logoURI": "https://img-v1.raydium.io/icon/9n4nbM75f5Ui33ZbPYXn59EwSgE8CGsHtAeTH5YFeJ9E.png",
-        "tags": [],
-        "priority": 2,
-        "type": "eclipse",
-        "extensions": {
-          "coingeckoId": "solana"
-        }
-      }
-    }, {
-      "key": "FjtvYfdfxjBdgtFdHX6AZEPbtowsMhiUF5D53jYxWUba",
-      "value": {
-        "chainId": 102,
-        "address": "FjtvYfdfxjBdgtFdHX6AZEPbtowsMhiUF5D53jYxWUba",
-        "programId": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
-        "decimals": 9,
-        "symbol": "ETH",
-        "name": "eth",
-        "logoURI": "https://img-v1.raydium.io/icon/2FPyTwcZLUg1MDrwsyoP4D6s1tM7hAkHYRjkNb5w6Pxk.png",
-        "tags": [],
-        "priority": 2,
-        "type": "eclipse",
-        "extensions": {
-          "coingeckoId": "solana"
-        }
-      }
-    }, {
-      "key": "5gFSyxjNsuQsZKn9g5L9Ky3cSUvJ6YXqWVuPzmSi8Trx",
-      "value": {
-        "chainId": 103,
-        "address": "5gFSyxjNsuQsZKn9g5L9Ky3cSUvJ6YXqWVuPzmSi8Trx",
-        "programId": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
-        "decimals": 9,
-        "symbol": "USDC",
-        "name": "usdc",
-        "logoURI": "https://img-v1.raydium.io/icon/EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v.png",
-        "tags": [],
-        "priority": 2,
-        "type": "eclipse",
-        "extensions": {
-          "coingeckoId": "solana"
-        }
-      }
-    }]
-
-    setEclipseTokenInfo(eclipseTokenList)
-  }, [])
+  const [eclipseTokenInfo] = useState<any>(eclipseTokenList);
 
   useEffect(() => {
     listControllerRef.current?.resetRenderCount()
@@ -210,7 +153,7 @@ export default forwardRef<
   }, [])
 
   // const USDC = useMemo(() => orgTokenMap.get(USDCMint), [orgTokenMap])
-  const SOL = useMemo(() => orgTokenMap.get(SOLMint), [orgTokenMap])
+  // const SOL = useMemo(() => orgTokenMap.get(SOLMint), [orgTokenMap])
   const RAY = useMemo(() => orgTokenMap.get(RAYMint), [orgTokenMap])
   const USDT = useMemo(() => orgTokenMap.get(USDTMint), [orgTokenMap])
 

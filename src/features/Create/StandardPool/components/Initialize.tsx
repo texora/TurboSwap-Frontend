@@ -42,9 +42,10 @@ import { Program, AnchorProvider, BN, utils } from '@project-serum/anchor';
 import { getAmmConfigAddress, getAuthAddress, getPoolAddress, getPoolLpMintAddress, getPoolVaultAddress, getOrcleAccountAddress } from '@/utils/pda'
 import { getOrCreateAssociatedTokenAccount, getAssociatedTokenAddressSync, TOKEN_PROGRAM_ID } from "@solana/spl-token";
 import { ASSOCIATED_PROGRAM_ID } from '@project-serum/anchor/dist/cjs/utils/token'
-
+import { eclipseTokenList } from '@/utils/eclipseTokenList'
 import Decimal from 'decimal.js'
 import dayjs from 'dayjs'
+import axios from 'axios'
 
 export default function Initialize() {
   const { t } = useTranslation()
@@ -280,6 +281,19 @@ export default function Initialize() {
         })
         .rpc();
 
+      let token0Value = eclipseTokenList.filter(item => item.key === token0.toString())[0].value;
+      let token1Value = eclipseTokenList.filter(item => item.key === token1.toString())[0].value;
+
+      axios.post(`http://localhost:8080/epsapi/savePoolInfo`, {
+        id: poolAddress,
+        mintA: `101,${token0.toString()},${token0Value.programId},${token0Value.logoURI},${token0Value.symbol},${token0Value.name},${token0Value.decimals}`,
+        mintB: `101,${token1.toString()},${token0Value.programId},${token1Value.logoURI},${token1Value.symbol},${token1Value.name},${token1Value.decimals}`
+      }).then(function (response) {
+
+      })
+
+      const poolState = await program.account.poolState.fetch(poolAddress);
+      console.log({ poolAddress, poolState });
 
     } catch (error) {
       console.error("Error minting NFT:", error);
