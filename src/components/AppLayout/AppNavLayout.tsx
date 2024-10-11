@@ -209,7 +209,7 @@ function AppNavLayout({
       >
         {children}
       </Box>
-      <DisclaimerModal />
+      {/* <DisclaimerModal /> */}
       <Mobile>
         <Box className="mobile_bottom_navbar" flex="none">
           <MobileBottomNavbar />

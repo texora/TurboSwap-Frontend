@@ -158,9 +158,9 @@ export default function Swap() {
             <LinkIcon />
           </Box>
         </Tooltip>
-        <MoonpayBuy>
+        {/* <MoonpayBuy>
           <DollarIcon />
-        </MoonpayBuy>
+        </MoonpayBuy> */}
 
         {!isMobile && isPCChartShown && (
           <Box
