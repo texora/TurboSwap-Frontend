@@ -109,7 +109,7 @@ function TokenInput(props: TokenInputProps) {
     id,
     name,
     size: inputSize,
-    token: inputToken,
+    token,
     hideBalance = false,
     hideTokenIcon = false,
     hideControlButton = false,
@@ -166,7 +166,7 @@ function TokenInput(props: TokenInputProps) {
   // price
   const tokenMap = useTokenStore((s) => s.tokenMap)
   // const token = typeof inputToken === 'string' ? tokenMap.get(inputToken) : inputToken
-  const [token, setToken] = useState<TokenInfo | null>(null)
+  // const [token, setToken] = useState<TokenInfo | null>(null)
   const { data: tokenPrice } = useTokenPrice({
     mintList: [token?.address]
   })
@@ -200,7 +200,7 @@ function TokenInput(props: TokenInputProps) {
   }
 
   useEffect(() => {
-    getTokenPrice();
+    // getTokenPrice();
   }, [])
 
   // const handleValidate = useEvent((value: string) => {
@@ -218,27 +218,27 @@ function TokenInput(props: TokenInputProps) {
     if (token && wallet.publicKey) {
       const connection = new Connection("https://testnet.dev2.eclipsenetwork.xyz", 'confirmed');
 
-      console.log(token.address)
-      if (token.address === "So11111111111111111111111111111111111111112") {
-        let balance = await connection.getBalance(wallet.publicKey);
-        setAmount(balance)
-        setTotalPrice(price * balance)
-      }
-      else {
-        let tokenAccount = await getAssociatedTokenAddressSync(new PublicKey(token?.address), wallet.publicKey);
-        console.log(tokenAccount.toString())
-        const info = await connection.getTokenAccountBalance(tokenAccount);
-        if (info.value.uiAmount == null) throw new Error('No balance found');
-        console.log('Balance (using Solana-Web3.js): ', info.value.uiAmount);
-        setAmount(info.value.uiAmount)
-        setTotalPrice(price * info.value.uiAmount)
-      }
+      // if (token.address === "So11111111111111111111111111111111111111112") {
+      //   let balance = await connection.getBalance(wallet.publicKey);
+      //   console.log(balance)
+      //   setAmount(balance)
+      //   setTotalPrice(price * balance)
+      // }
+      // else {
+      let tokenAccount = await getAssociatedTokenAddressSync(new PublicKey(token?.address), wallet.publicKey);
+      console.log(tokenAccount.toString())
+      const info = await connection.getTokenAccountBalance(tokenAccount);
+      if (info.value.uiAmount == null) throw new Error('No balance found');
+      console.log('Balance (using Solana-Web3.js): ', info.value.uiAmount);
+      setAmount(info.value.uiAmount)
+      setTotalPrice(price * info.value.uiAmount)
+      // }
     }
   }
 
   useEffect(() => {
     fetchAmount();
-    getTokenPrice();
+    // getTokenPrice();
 
   }, [token])
 
@@ -311,7 +311,6 @@ function TokenInput(props: TokenInputProps) {
     //   }
     //   // return
     // }
-    setToken(token)
     onTokenChange?.(token)
     onClose()
   })

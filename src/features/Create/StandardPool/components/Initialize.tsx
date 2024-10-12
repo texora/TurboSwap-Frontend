@@ -199,13 +199,36 @@ export default function Initialize() {
 
     const connection = new Connection("https://testnet.dev2.eclipsenetwork.xyz", 'confirmed');
     const provider = new AnchorProvider(connection, anchorWallet, AnchorProvider.defaultOptions());
-    const programId = new PublicKey('8PzREVMxRooeR2wbihZdp2DDTQMZkX9MVzfa8ZV615KW');
+    const programId = new PublicKey('93SmLhgpQEyFYrkhE7qJb5XJ6iYdwmUrYFD8SnfD6TzS');
     const program = new Program(IDL, programId, provider);
 
     try {
       let config_index = 0;
+      let tradeFeeRate = new BN(10)
+      let protocolFeeRate = new BN(1000)
+      let fundFeeRate = new BN(25000)
+      let create_fee = new BN(0)
 
       const [ammConfigPDA] = await getAmmConfigAddress(config_index, program.programId);
+
+      const info = await connection.getAccountInfo(ammConfigPDA);
+      if (info == null || info.data.length == 0) {
+        await program.methods
+          .createAmmConfig(
+            config_index,
+            tradeFeeRate,
+            protocolFeeRate,
+            fundFeeRate,
+            create_fee
+          )
+          .accounts({
+            owner: anchorWallet.publicKey,
+            ammConfig: ammConfigPDA,
+            systemProgram: SystemProgram.programId,
+          })
+          .rpc();
+      }
+
       const token0 = new PublicKey(baseToken.address)
       const token1 = new PublicKey(quoteToken.address)
 
@@ -258,7 +281,7 @@ export default function Initialize() {
       );
 
       await program.methods
-        .initialize(new BN(parseFloat(tokenAmount.base) * 100_000_000), new BN(parseFloat(tokenAmount.quote) * 100_000_000), new BN(0))
+        .initialize(new BN(parseFloat(tokenAmount.base) * 100000000), new BN(parseFloat(tokenAmount.quote) * 100_000_000), new BN(0))
         .accounts({
           creator: anchorWallet.publicKey,
           ammConfig: ammConfigPDA,
@@ -272,7 +295,7 @@ export default function Initialize() {
           creatorLpToken: creatorLpTokenAddress,
           token0Vault: vault0,
           token1Vault: vault1,
-          // createPoolFee: poolFee,
+          // createPoolFee: new PublicKey("HtPorWESXkST2NLsq7CkjvGSeF4JkvXFvtE8S7MtKeXZ"),
           observationState: observationAddress,
           tokenProgram: TOKEN_PROGRAM_ID,
           token0Program: TOKEN_PROGRAM_ID,
@@ -286,7 +309,7 @@ export default function Initialize() {
       let token1Value = eclipseTokenList.filter(item => item.key === token1.toString())[0].value;
 
       axios.post(`http://62.3.6.226:8080/epsapi/savePoolInfo`, {
-        id: poolAddress,
+        id: poolAddress.toString(),
         mintA: `101,${token0.toString()},${token0Value.programId},${token0Value.logoURI},${token0Value.symbol},${token0Value.name},${token0Value.decimals}`,
         mintB: `101,${token1.toString()},${token0Value.programId},${token1Value.logoURI},${token1Value.symbol},${token1Value.name},${token1Value.decimals}`
       }).then(function (_response) {

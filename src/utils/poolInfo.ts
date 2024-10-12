@@ -42,7 +42,7 @@ export const epsGetPoolInfo = async () => {
     for (let i in poolInfo) {
       poolData.push({
         "type": "Standard",
-        "programId": "8PzREVMxRooeR2wbihZdp2DDTQMZkX9MVzfa8ZV615KW",
+        "programId": "93SmLhgpQEyFYrkhE7qJb5XJ6iYdwmUrYFD8SnfD6TzS",
         "id": poolInfo[i].poolId,
         "mintA": {
           "chainId": parseInt(poolInfo[i].minta.split(",")[0]),

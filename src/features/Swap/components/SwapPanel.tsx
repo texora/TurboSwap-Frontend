@@ -246,7 +246,7 @@ export function SwapPanel({
 
       const connection = new Connection("https://testnet.dev2.eclipsenetwork.xyz", 'confirmed');
       const provider = new AnchorProvider(connection, anchorWallet, AnchorProvider.defaultOptions());
-      const programId = new PublicKey('8PzREVMxRooeR2wbihZdp2DDTQMZkX9MVzfa8ZV615KW');
+      const programId = new PublicKey('93SmLhgpQEyFYrkhE7qJb5XJ6iYdwmUrYFD8SnfD6TzS');
       const program = new Program(IDL, programId, provider);
 
       // 
