@@ -297,17 +297,17 @@ export default forwardRef<
         </Box>
       </Flex>
 
-      {!isUnknownNewToken ? (
+      {/* {!isUnknownNewToken ? (
         <Box borderRadius={'8px'} background={colors.modalContainerBg} p="12px" mb="24px">
           <Text opacity={'50%'} fontWeight={'normal'} fontSize={'12px'} lineHeight={'16px'} color={colors.textSecondary}>
             {t('token_selector.token_not_found')}
           </Text>
         </Box>
-      ) : null}
+      ) : null} */}
 
-      <Button variant="solid-dark" width="full" bg={colors.backgroundDark} onClick={() => onOpenTokenList()}>
+      {/* <Button variant="solid-dark" width="full" bg={colors.backgroundDark} onClick={() => onOpenTokenList()}>
         {t('common.view_token_list')}
-      </Button>
+      </Button> */}
     </Flex>
   )
 })
