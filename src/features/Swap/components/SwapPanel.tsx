@@ -83,6 +83,7 @@ export function SwapPanel({
   const { tokenInfo: unknownTokenB } = useTokenInfo({
     mint: isTokenLoaded && !tokenOutput && outputMint ? outputMint : undefined
   })
+  const [balance, setBalance] = useState({ balance1: 0, balance2: 0 })
 
   useEffect(() => {
     if (defaultInput) setInputMint(defaultInput)
@@ -135,10 +136,11 @@ export function SwapPanel({
     computeResult && tokenInput
       ? new Decimal(computeResult.inputAmount).div(10 ** tokenInput?.decimals).toFixed(tokenInput?.decimals)
       : computeResult?.inputAmount || ''
-  const outputAmount =
-    amountIn
-      ? ""
-      : ''
+  const [outputAmount, setOutputAmount] = useState("");
+  //   const outputAmount =
+  // amountIn
+  //   ? ""
+  //   : ''
 
   useEffect(() => {
     if (!cacheLoaded) return
@@ -177,6 +179,7 @@ export function SwapPanel({
   const handleInputChange = useCallback((val: string) => {
     setSwapType('BaseIn')
     setAmountIn(val)
+    fetchAmount()
   }, [])
 
   const handleInput2Change = useCallback((val: string) => {
@@ -239,6 +242,79 @@ export function SwapPanel({
       signAllTransactions: wallet.signAllTransactions.bind(wallet),
     };
   }, [wallet]);
+
+  useEffect(() => {
+    fetchAmount();
+  }, [inputMint, outputMint])
+
+  const fetchAmount = async () => {
+    console.log("aaaaaaaa")
+    console.log(anchorWallet)
+    if (!anchorWallet) return;
+    console.log("bbbbbbbbbbbbbbbbbbbb")
+    if (!inputMint || !outputMint) return;
+    console.log("ccccccccccccccccccc")
+
+    try {
+
+      const connection = new Connection("https://testnet.dev2.eclipsenetwork.xyz", 'confirmed');
+      const provider = new AnchorProvider(connection, anchorWallet, AnchorProvider.defaultOptions());
+      const programId = new PublicKey('tmcnqP66JdK5UwnfGWJCy66K9BaJjnCqvoGNYEn9VJv');
+      const program = new Program(IDL, programId, provider);
+
+      // 
+      const inputToken = new PublicKey(inputMint);
+      const outputToken = new PublicKey(outputMint);
+
+      let config_index = 0;
+
+      const [address, _] = await getAmmConfigAddress(
+        config_index,
+        program.programId
+      );
+      const configAddress = address;
+
+      const [poolAddress] = await getPoolAddress(
+        configAddress,
+        inputToken,
+        outputToken,
+        program.programId
+      );
+
+      const [inputVault] = await getPoolVaultAddress(
+        poolAddress,
+        inputToken,
+        program.programId
+      );
+      const [outputVault] = await getPoolVaultAddress(
+        poolAddress,
+        outputToken,
+        program.programId
+      );
+
+      let balance1 = await connection.getTokenAccountBalance(inputVault)
+      let balance2 = await connection.getTokenAccountBalance(outputVault)
+      console.log(balance1.value.uiAmount)
+      console.log(balance2.value.uiAmount)
+
+
+      if (amountIn && balance2.value.uiAmount && balance1.value.uiAmount) {
+        setBalance({
+          balance1: balance1.value.uiAmount,
+          balance2: balance2.value.uiAmount
+        })
+      }
+
+    } catch (error) {
+      console.log(error)
+    }
+
+  }
+
+  useEffect(() => {
+    if (balance.balance1 !== 0 && balance.balance2 !== 0)
+      setOutputAmount((balance.balance2 * parseFloat(amountIn) / balance.balance1).toString())
+  }, [balance])
 
   const handleClickSwap = async () => {
     try {
@@ -303,6 +379,14 @@ export function SwapPanel({
         outputToken,
         program.programId
       );
+
+      let balance1 = await connection.getTokenAccountBalance(inputVault)
+      let balance2 = await connection.getTokenAccountBalance(outputVault)
+
+      console.log(inputVault.toString())
+      console.log(outputVault.toString())
+      console.log(balance1)
+      console.log(balance2)
 
       const inputTokenAccount = getAssociatedTokenAddressSync(
         inputToken,
