@@ -9,7 +9,7 @@ import { eclipseTokenList } from '@/utils/eclipseTokenList'
 //   onClose: () => void
 // }
 
-export default function TokenItem(props: { chooseToken: Function }) {
+export default function TokenItem(props: { chooseToken: any }) {
   return (
     <Flex direction="column" className="iteams">
       {eclipseTokenList.map((item, index) => (
