@@ -52,7 +52,7 @@ const MyApp = ({ Component, pageProps, lng, breakPoints, ...props }: AppProps & 
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:site" content="@RaydiumProtocol" />
         <meta name="twitter:creator" content="@RaydiumProtocol" />
-        <meta httpEquiv="Content-Security-Policy" content="upgrade-insecure-requests" />
+        {/* <meta httpEquiv="Content-Security-Policy" content="upgrade-insecure-requests" /> */}
         <meta name="twitter:title" content="Raydium" />
         <meta name="twitter:description" content="An on-chain order book AMM powering the evolution of DeFi " />
         <meta property="og:description" content="An on-chain order book AMM powering the evolution of DeFi " />
