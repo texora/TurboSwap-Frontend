@@ -107,7 +107,8 @@ export default function CandleChart({ onPriceChange, baseMint, quoteMint, timeTy
     })
 
     // Load static data into the chart
-    candlestickSeries.setData(data)
+    // candlestickSeries.setData(data)
+    candlestickSeries.setData([])
     volumeSeries.setData(
       data.map((item: any) => ({
         time: item.time,
@@ -129,9 +130,9 @@ export default function CandleChart({ onPriceChange, baseMint, quoteMint, timeTy
     onPriceChange?.(
       currentPrice != null
         ? {
-            current: currentPrice,
-            change: change24H || 0
-          }
+          current: currentPrice,
+          change: change24H || 0
+        }
         : undefined
     )
   }, [onPriceChange, currentPrice, change24H])
