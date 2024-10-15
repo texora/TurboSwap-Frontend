@@ -190,7 +190,6 @@ export function SwapPanel({
         if (getMintPriority(token.address) > getMintPriority(outputMint)) {
           onDirectionNeedReverse?.()
         }
-        console.log(token.address)
         setInputMint(token.address)
         setTokenInput(token);
         setOutputMint((mint) => (token.address === mint ? '' : mint))
@@ -293,7 +292,6 @@ export function SwapPanel({
         outputToken,
         program.programId
       );
-      console.log(poolAddress.toString())
 
       const [inputVault] = await getPoolVaultAddress(
         poolAddress,
@@ -305,8 +303,6 @@ export function SwapPanel({
         outputToken,
         program.programId
       );
-      console.log(inputVault.toString())
-      console.log(outputVault.toString())
 
       const inputTokenAccount = getAssociatedTokenAddressSync(
         inputToken,
