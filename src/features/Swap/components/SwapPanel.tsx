@@ -68,10 +68,12 @@ export function SwapPanel({
   const sendingResult = useRef<ApiSwapV1OutSuccess | undefined>()
   const wsolBalance = getTokenBalanceUiAmount({ mint: NATIVE_MINT.toBase58(), decimals: SOL_INFO.decimals })
 
-  const [inputMint, setInputMint] = useState<string>(PublicKey.default.toBase58())
+  // const [inputMint, setInputMint] = useState<string>(PublicKey.default.toBase58())
+  const [inputMint, setInputMint] = useState<string>(defaultInput)
   const [swapType, setSwapType] = useState<'BaseIn' | 'BaseOut'>('BaseIn')
 
-  const [outputMint, setOutputMint] = useState<string>(RAYMint.toBase58())
+  // const [outputMint, setOutputMint] = useState<string>(RAYMint.toBase58())
+  const [outputMint, setOutputMint] = useState<string>(defaultOutput)
   // const [tokenInput, tokenOutput] = [tokenMap.get(inputMint), tokenMap.get(outputMint)]
   const [tokenInput, setTokenInput] = useState<TokenInfo | ApiV3Token | undefined>(undefined)
   const [tokenOutput, setTokenOutput] = useState<TokenInfo | ApiV3Token | undefined>(undefined)
@@ -132,10 +134,12 @@ export function SwapPanel({
   const isComputing = isLoading || isValidating
   const isHighRiskTx = (computeResult?.priceImpactPct || 0) > 5
 
-  const inputAmount =
-    computeResult && tokenInput
-      ? new Decimal(computeResult.inputAmount).div(10 ** tokenInput?.decimals).toFixed(tokenInput?.decimals)
-      : computeResult?.inputAmount || ''
+  // const inputAmount =
+  //   computeResult && tokenInput
+  //     ? new Decimal(computeResult.inputAmount).div(10 ** tokenInput?.decimals).toFixed(tokenInput?.decimals)
+  //     : computeResult?.inputAmount || ''
+  const [inputAmount, setInputAmount] = useState("")
+
   const [outputAmount, setOutputAmount] = useState("");
   //   const outputAmount =
   // amountIn
@@ -185,6 +189,7 @@ export function SwapPanel({
   const handleInput2Change = useCallback((val: string) => {
     setSwapType('BaseOut')
     setAmountIn(val)
+    fetchAmount()
   }, [])
 
   const handleSelectToken = useCallback(
@@ -249,18 +254,12 @@ export function SwapPanel({
 
   const fetchAmount = async () => {
     console.log("aaaaaaaa")
-    console.log(anchorWallet)
-    if (!anchorWallet) return;
-    console.log("bbbbbbbbbbbbbbbbbbbb")
+    console.log(`${inputMint} ---- ${outputMint}`)
     if (!inputMint || !outputMint) return;
-    console.log("ccccccccccccccccccc")
-
+    console.log("bbbbbbbbbbbbbbbbbbbb")
     try {
-
       const connection = new Connection("https://testnet.dev2.eclipsenetwork.xyz", 'confirmed');
-      const provider = new AnchorProvider(connection, anchorWallet, AnchorProvider.defaultOptions());
       const programId = new PublicKey('tmcnqP66JdK5UwnfGWJCy66K9BaJjnCqvoGNYEn9VJv');
-      const program = new Program(IDL, programId, provider);
 
       // 
       const inputToken = new PublicKey(inputMint);
@@ -270,7 +269,7 @@ export function SwapPanel({
 
       const [address, _] = await getAmmConfigAddress(
         config_index,
-        program.programId
+        programId
       );
       const configAddress = address;
 
@@ -278,18 +277,18 @@ export function SwapPanel({
         configAddress,
         inputToken,
         outputToken,
-        program.programId
+        programId
       );
 
       const [inputVault] = await getPoolVaultAddress(
         poolAddress,
         inputToken,
-        program.programId
+        programId
       );
       const [outputVault] = await getPoolVaultAddress(
         poolAddress,
         outputToken,
-        program.programId
+        programId
       );
 
       let balance1 = await connection.getTokenAccountBalance(inputVault)
@@ -297,12 +296,17 @@ export function SwapPanel({
       console.log(balance1.value.uiAmount)
       console.log(balance2.value.uiAmount)
 
-
-      if (amountIn && balance2.value.uiAmount && balance1.value.uiAmount) {
+      if (balance2.value.uiAmount && balance1.value.uiAmount) {
         setBalance({
           balance1: balance1.value.uiAmount,
           balance2: balance2.value.uiAmount
-        })
+        });
+        if (amountIn !== "") {
+          if (swapType === "BaseIn")
+            setOutputAmount((balance.balance2 * parseFloat(amountIn) / balance.balance1 * 0.08).toString())
+          else
+            setInputAmount((balance.balance1 * parseFloat(amountIn) / balance.balance2 * 0.08).toString())
+        }
       }
 
     } catch (error) {
@@ -311,10 +315,20 @@ export function SwapPanel({
 
   }
 
+  // useEffect(() => {
+
+  // }, [balance.balance1, balance.balance2])
+
   useEffect(() => {
-    if (balance.balance1 !== 0 && balance.balance2 !== 0)
-      setOutputAmount((balance.balance2 * parseFloat(amountIn) / balance.balance1).toString())
-  }, [balance])
+    console.log(balance.balance1 + "    " + balance.balance2 + "      " + amountIn)
+    if (balance.balance1 !== 0 && balance.balance2 !== 0 && amountIn !== "") {
+      if (swapType === "BaseIn")
+        setOutputAmount((balance.balance2 * parseFloat(amountIn) / balance.balance1 * 0.08).toString())
+      else
+        setInputAmount((balance.balance1 * parseFloat(amountIn) / balance.balance2 * 0.08).toString())
+    }
+  }, [amountIn])
+
 
   const handleClickSwap = async () => {
     try {
@@ -368,6 +382,7 @@ export function SwapPanel({
         outputToken,
         program.programId
       );
+      console.log(poolAddress.toString())
 
       const [inputVault] = await getPoolVaultAddress(
         poolAddress,
