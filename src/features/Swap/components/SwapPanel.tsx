@@ -137,7 +137,7 @@ export function SwapPanel({
       : computeResult?.inputAmount || ''
   const outputAmount =
     amountIn
-      ? "1.7432"
+      ? ""
       : ''
 
   useEffect(() => {
