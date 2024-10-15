@@ -303,9 +303,11 @@ export function SwapPanel({
         });
         if (amountIn !== "") {
           if (swapType === "BaseIn")
-            setOutputAmount((balance.balance2 * parseFloat(amountIn) / balance.balance1 * 0.08).toString())
+            // delta_y = (delta_x * y) / (x + delta_x)
+            setOutputAmount((balance.balance2 * parseFloat(amountIn) / (balance.balance1 + parseFloat(amountIn))).toString())
           else
-            setInputAmount((balance.balance1 * parseFloat(amountIn) / balance.balance2 * 0.08).toString())
+            // delta_x = (x * delta_y) / (y - delta_y)
+            setInputAmount((balance.balance1 * parseFloat(amountIn) / (balance.balance2 - parseFloat(amountIn))).toString())
         }
       }
 
