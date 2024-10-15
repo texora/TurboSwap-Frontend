@@ -30,6 +30,22 @@ import { getOrCreateAssociatedTokenAccount, getAssociatedTokenAddressSync, TOKEN
 import { Connection, PublicKey, SystemProgram, SYSVAR_RENT_PUBKEY } from '@solana/web3.js';
 import { useWallet } from '@solana/wallet-adapter-react';
 import axios from 'axios'
+import { tokensPrices } from './tokenInfo'
+
+const getTVL = async (poolInfo: { poolId: string, minta: string, mintb: string }) => {
+  const connection = new Connection("https://testnet.dev2.eclipsenetwork.xyz", 'confirmed');
+
+  const tokenAccount1 = getAssociatedTokenAddressSync(new PublicKey(poolInfo.minta.split(",")[1]), new PublicKey(poolInfo.poolId), false, new PublicKey(poolInfo.minta.split(",")[2]))
+  const tokenAccount2 = getAssociatedTokenAddressSync(new PublicKey(poolInfo.mintb.split(",")[1]), new PublicKey(poolInfo.poolId), false, new PublicKey(poolInfo.mintb.split(",")[2]))
+
+  let tokenAmount1 = await connection.getTokenAccountBalance(tokenAccount1);
+  let tokenAmount2 = await connection.getTokenAccountBalance(tokenAccount2);
+
+  let tvl = tokensPrices[poolInfo.minta.split(",")[4]].price * (tokenAmount1.value.uiAmount !== null ? tokenAmount1.value.uiAmount : 0) +
+    tokensPrices[poolInfo.mintb.split(",")[4]].price * (tokenAmount2.value.uiAmount !== null ? tokenAmount2.value.uiAmount : 0)
+
+  return tvl;
+}
 
 export const epsGetPoolInfo = async () => {
 
@@ -37,12 +53,14 @@ export const epsGetPoolInfo = async () => {
     const serverData = await axios.get(`http://62.3.6.226:8080/epsapi/getPoolInfo`);
     const poolInfo = serverData.data.poolInfo
 
+    console.log(poolInfo)
+
     const poolData = [];
 
     for (let i in poolInfo) {
       poolData.push({
         "type": "Standard",
-        "programId": "93SmLhgpQEyFYrkhE7qJb5XJ6iYdwmUrYFD8SnfD6TzS",
+        "programId": "tmcnqP66JdK5UwnfGWJCy66K9BaJjnCqvoGNYEn9VJv",
         "id": poolInfo[i].poolId,
         "mintA": {
           "chainId": parseInt(poolInfo[i].minta.split(",")[0]),
@@ -71,13 +89,13 @@ export const epsGetPoolInfo = async () => {
         "mintAmountB": 28309967.717412,
         "feeRate": 0.0025,
         "openTime": "0",
-        "tvl": 364090.9,
+        "tvl": parseFloat(poolInfo[i].liq),
         "day": {
-          "volume": 16003268.799198171,
+          "volume": parseFloat(poolInfo[i].vol),
           "volumeQuote": 7003025684.0527525,
-          "volumeFee": 40008.17199799543,
-          "apr": 4010.81,
-          "feeApr": 4010.81,
+          "volumeFee": parseFloat(poolInfo[i].fee),
+          "apr": parseFloat(poolInfo[i].apr),
+          "feeApr": 0,
           "priceMin": 10756.752204545455,
           "priceMax": 38603507.47044753,
           "rewardApr": []
@@ -124,7 +142,7 @@ export const epsGetPoolInfo = async () => {
         "lpPrice": 88.51377889682935,
         "lpAmount": 4113.381070308,
         "burnPercent": 98.29,
-        "poolName": "USDC - ETH",
+        "poolName": `${poolInfo[i].minta.split(",")[4]} - ${poolInfo[i].mintb.split(",")[4]}`,
         "poolDecimals": 9,
         "isOpenBook": true,
         "weeklyRewards": [],
@@ -164,7 +182,7 @@ export const epsGetPoolInfo = async () => {
     return poolData;
 
   } catch (error) {
-    console.log(error)
+    console.log(`----------->>>>>>>>>>>${error}`)
   }
 
 

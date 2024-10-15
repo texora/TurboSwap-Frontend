@@ -35,6 +35,8 @@ import { Program, AnchorProvider, BN, utils } from '@project-serum/anchor';
 import { IDL } from '@/idl/raydium_cp_swap'
 import { getAmmConfigAddress, getAuthAddress, getPoolAddress, getPoolLpMintAddress, getPoolVaultAddress, getOrcleAccountAddress } from '@/utils/pda'
 import { NATIVE_MINT } from '@solana/spl-token'
+import { toastSubject } from '@/hooks/toast/useGlobalToast'
+import ExternalLink from '@/icons/misc/ExternalLink'
 
 export function SwapPanel({
   onInputMintChange,
@@ -70,7 +72,9 @@ export function SwapPanel({
   const [swapType, setSwapType] = useState<'BaseIn' | 'BaseOut'>('BaseIn')
 
   const [outputMint, setOutputMint] = useState<string>(RAYMint.toBase58())
-  const [tokenInput, tokenOutput] = [tokenMap.get(inputMint), tokenMap.get(outputMint)]
+  // const [tokenInput, tokenOutput] = [tokenMap.get(inputMint), tokenMap.get(outputMint)]
+  const [tokenInput, setTokenInput] = useState<TokenInfo | ApiV3Token | undefined>(undefined)
+  const [tokenOutput, setTokenOutput] = useState<TokenInfo | ApiV3Token | undefined>(undefined)
   const [cacheLoaded, setCacheLoaded] = useState(false)
   const isTokenLoaded = tokenMap.size > 0
   const { tokenInfo: unknownTokenA } = useTokenInfo({
@@ -132,9 +136,9 @@ export function SwapPanel({
       ? new Decimal(computeResult.inputAmount).div(10 ** tokenInput?.decimals).toFixed(tokenInput?.decimals)
       : computeResult?.inputAmount || ''
   const outputAmount =
-    computeResult && tokenOutput
-      ? new Decimal(computeResult.outputAmount).div(10 ** tokenOutput?.decimals).toFixed(tokenOutput?.decimals)
-      : computeResult?.outputAmount || ''
+    amountIn
+      ? "1.7432"
+      : ''
 
   useEffect(() => {
     if (!cacheLoaded) return
@@ -186,13 +190,16 @@ export function SwapPanel({
         if (getMintPriority(token.address) > getMintPriority(outputMint)) {
           onDirectionNeedReverse?.()
         }
+        console.log(token.address)
         setInputMint(token.address)
+        setTokenInput(token);
         setOutputMint((mint) => (token.address === mint ? '' : mint))
       }
       if (side === 'output') {
         if (getMintPriority(inputMint) > getMintPriority(token.address)) {
           onDirectionNeedReverse?.()
         }
+        setTokenOutput(token)
         setOutputMint(token.address)
         setInputMint((mint) => {
           if (token.address === mint) {
@@ -246,7 +253,7 @@ export function SwapPanel({
 
       const connection = new Connection("https://testnet.dev2.eclipsenetwork.xyz", 'confirmed');
       const provider = new AnchorProvider(connection, anchorWallet, AnchorProvider.defaultOptions());
-      const programId = new PublicKey('93SmLhgpQEyFYrkhE7qJb5XJ6iYdwmUrYFD8SnfD6TzS');
+      const programId = new PublicKey('tmcnqP66JdK5UwnfGWJCy66K9BaJjnCqvoGNYEn9VJv');
       const program = new Program(IDL, programId, provider);
 
       // 
@@ -269,15 +276,7 @@ export function SwapPanel({
 
       //
       let amount_in = isSwapBaseIn ? new BN(parseFloat(amountIn) * 100_000_000) : new BN(parseFloat(inputAmount) * 100_000_000);
-      let amount_out = isSwapBaseIn ? new BN(parseFloat(outputAmount) * 100_000_000) : new BN(parseFloat(amountIn) * 100_000_000);
-
-      console.log(amountIn)
-      console.log(inputAmount)
-      console.log(amount_in)
-
-      console.log(outputAmount)
-      console.log(amountIn)
-      console.log(amount_out)
+      // let amount_out = isSwapBaseIn ? new BN(parseFloat(outputAmount) * 100_000_000) : new BN(parseFloat(amountIn) * 100_000_000);
 
       let config_index = 0;
 
@@ -294,6 +293,7 @@ export function SwapPanel({
         outputToken,
         program.programId
       );
+      console.log(poolAddress.toString())
 
       const [inputVault] = await getPoolVaultAddress(
         poolAddress,
@@ -305,6 +305,8 @@ export function SwapPanel({
         outputToken,
         program.programId
       );
+      console.log(inputVault.toString())
+      console.log(outputVault.toString())
 
       const inputTokenAccount = getAssociatedTokenAddressSync(
         inputToken,
@@ -341,7 +343,23 @@ export function SwapPanel({
           observationState: observationAddress,
         })
         .rpc();
-      console.log(tx);
+
+      toastSubject.next({
+        title: 'Swap completed!',
+        description: (
+          <Box>
+            You swapped successfully
+          </Box>
+        ),
+        detail: (
+          <Flex align="center" gap={1} opacity={0.5} onClick={() => { window.open(`https://solscan.io/tx/${tx}?cluster=custom&customUrl=https://testnet.dev2.eclipsenetwork.xyz`) }} >
+            View transaction details <ExternalLink />
+          </Flex>
+        ),
+        status: 'success',
+        isClosable: false,
+        duration: 5000
+      })
 
       const inputTokenAccountAfter = await getAccount(
         connection,
@@ -433,7 +451,7 @@ export function SwapPanel({
         />
       </Flex>
       {/* swap info */}
-      <Collapse in={hasValidAmountOut} animateOpacity>
+      {/* <Collapse in={hasValidAmountOut} animateOpacity>
         <Box mb={[4, 5]}>
           <SwapInfoBoard
             amountIn={amountIn}
@@ -444,7 +462,7 @@ export function SwapPanel({
             onRefresh={handleRefresh}
           />
         </Box>
-      </Collapse>
+      </Collapse> */}
 
       <Collapse in={needPriceUpdatedAlert}>
         <Box pb={[4, 5]}>
@@ -500,8 +518,9 @@ export function SwapPanel({
         onClick={isHighRiskTx ? onHightRiskOpen : handleClickSwap}
       >
         <Text>
-          {swapDisabled ? t('common.disabled') : swapError || t('swap.title')}
-          {isPoolNotOpenError ? ` ${dayjs(Number(openTime) * 1000).format('YYYY/M/D HH:mm:ss')}` : null}
+          Swap
+          {/* {swapDisabled ? t('common.disabled') : swapError || t('swap.title')} */}
+          {/* {isPoolNotOpenError ? ` ${dayjs(Number(openTime) * 1000).format('YYYY/M/D HH:mm:ss')}` : null} */}
         </Text>
       </ConnectedButton>
       <HighRiskAlert

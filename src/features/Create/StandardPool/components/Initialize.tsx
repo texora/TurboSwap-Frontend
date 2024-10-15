@@ -46,6 +46,7 @@ import { eclipseTokenList } from '@/utils/eclipseTokenList'
 import Decimal from 'decimal.js'
 import dayjs from 'dayjs'
 import axios from 'axios'
+import { tokensPrices } from '@/utils/tokenInfo'
 
 export default function Initialize() {
   const { t } = useTranslation()
@@ -148,10 +149,10 @@ export default function Initialize() {
         .toString()
 
   const currentPrice =
-    !tokenPrices[inputMint] || !tokenPrices[outputMint]
+    !tokensPrices[eclipseTokenList.filter(i => i.key === inputMint)[0]?.value.symbol] || !tokensPrices[eclipseTokenList.filter(i => i.key === outputMint)[0]?.value.symbol]
       ? ''
-      : new Decimal(tokenPrices[baseIn ? inputMint : outputMint].value || 0)
-        .div(tokenPrices[baseIn ? outputMint : inputMint].value || 1)
+      : new Decimal(tokensPrices[baseIn ? eclipseTokenList.filter(i => i.key === inputMint)[0]?.value.symbol : eclipseTokenList.filter(i => i.key === outputMint)[0]?.value.symbol].price || 0)
+        .div(tokensPrices[baseIn ? eclipseTokenList.filter(i => i.key === outputMint)[0]?.value.symbol : eclipseTokenList.filter(i => i.key === inputMint)[0]?.value.symbol].price || 1)
         .toDecimalPlaces(baseToken?.decimals ?? 6)
         .toString()
 
@@ -199,7 +200,7 @@ export default function Initialize() {
 
     const connection = new Connection("https://testnet.dev2.eclipsenetwork.xyz", 'confirmed');
     const provider = new AnchorProvider(connection, anchorWallet, AnchorProvider.defaultOptions());
-    const programId = new PublicKey('93SmLhgpQEyFYrkhE7qJb5XJ6iYdwmUrYFD8SnfD6TzS');
+    const programId = new PublicKey('tmcnqP66JdK5UwnfGWJCy66K9BaJjnCqvoGNYEn9VJv');
     const program = new Program(IDL, programId, provider);
 
     try {

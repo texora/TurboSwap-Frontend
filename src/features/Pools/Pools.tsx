@@ -288,6 +288,7 @@ export default function Pools() {
   const [poolinfo, setPoolinfo] = useState<any>([])
 
   const fetchPoolInfo = async () => {
+    console.log(`------------->>>>>>>>>>>>>>>>>>>>>>>`)
     const pool = await epsGetPoolInfo()
     setPoolinfo(pool)
   }
@@ -300,7 +301,7 @@ export default function Pools() {
   // const data = poolinfo
   const isLoading = hasSearch ? isSearchLoading : isOrgLoading
   const isLoadEnded = hasSearch ? isSearchLoadEnded : isOrgLoadedEnd
-  const loadMore = hasSearch ? () => {} : orgLoadMore
+  const loadMore = hasSearch ? () => { } : orgLoadMore
   const sortedData = useMemo(() => {
     return poolinfo
     // // if (!favoritePools.size) return data
@@ -377,18 +378,18 @@ export default function Pools() {
           <Desktop>
             <HStack justify="space-between" w="full" pb={4}>
               <PageHeroTitle title={t('liquidity.pools')} description={t('liquidity.pools_desc') || ''} />
-              <TVLInfoPanel tvl={tvl} volume={volume} />
+              {/* <TVLInfoPanel tvl={tvl} volume={volume} /> */}
             </HStack>
           </Desktop>
         </Box>
 
-        <Mobile>
+        {/* <Mobile>
           <Box {...titleContainerProps} mb={0.5} flexShrink={0} marginX={revertAppLayoutPaddingX}>
             <Mobile>
               <TVLInfoPanelMobile tvl={tvl} volume={volume} />
             </Mobile>
           </Box>
-        </Mobile>
+        </Mobile> */}
 
         {/* Controller Part */}
         <Box marginX={revertAppLayoutPaddingX} mb={[0, 3]}>

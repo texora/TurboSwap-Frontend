@@ -158,9 +158,9 @@ export default forwardRef<
   const RAY = useMemo(() => orgTokenMap.get(RAYMint), [orgTokenMap])
   const USDT = useMemo(() => orgTokenMap.get(USDTMint), [orgTokenMap])
 
-  const BTC = useMemo(() => eclipseTokenInfo.filter((i) => i.key === BTCMint)[0]?.value, [eclipseTokenInfo])
-  const ETH = useMemo(() => eclipseTokenInfo.filter((i) => i.key === ETHMint)[0]?.value, [eclipseTokenInfo])
-  const USDC = useMemo(() => eclipseTokenInfo.filter((i) => i.key === USDCMint)[0]?.value, [eclipseTokenInfo])
+  const BTC = useMemo(() => eclipseTokenInfo.filter((i: any) => i.key === BTCMint)[0]?.value, [eclipseTokenInfo])
+  const ETH = useMemo(() => eclipseTokenInfo.filter((i: any) => i.key === ETHMint)[0]?.value, [eclipseTokenInfo])
+  const USDC = useMemo(() => eclipseTokenInfo.filter((i: any) => i.key === USDCMint)[0]?.value, [eclipseTokenInfo])
 
   const [usdcDisabled, solDisabled, rayDisabled, usdtDisabled] = filterFn
     ? [!BTC || !filterFn(BTC), !ETH || !filterFn(ETH), !USDC || !filterFn(USDC)]

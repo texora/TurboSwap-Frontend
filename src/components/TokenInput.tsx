@@ -63,7 +63,8 @@ export interface TokenInputProps extends Pick<TokenSelectDialogProps, 'filterFn'
    * - upper grid py: 10px
    */
   size?: 'md' | 'sm'
-  token?: TokenInfo | ApiV3Token | string
+  // token?: TokenInfo | ApiV3Token
+  token?: any
   /** <NumberInput> is disabled */
   readonly?: boolean
   loading?: boolean
