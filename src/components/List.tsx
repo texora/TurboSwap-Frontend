@@ -101,7 +101,6 @@ function List<T>(
   const [renderCount, setRenderCount] = useState(0)
   const allListItems = useMemo(
     () => {
-      console.log(items)
       return items.slice(0, renderItemLength).map((item, idx) => <ListItem key={getItemKey(item, idx)}>{children?.(item, idx)}</ListItem>)
     },
     [items, renderItemLength, renderCount, children]

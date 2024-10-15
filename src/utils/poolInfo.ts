@@ -53,8 +53,6 @@ export const epsGetPoolInfo = async () => {
     const serverData = await axios.get(`http://62.3.6.226:8080/epsapi/getPoolInfo`);
     const poolInfo = serverData.data.poolInfo
 
-    console.log(poolInfo)
-
     const poolData = [];
 
     for (let i in poolInfo) {
@@ -182,7 +180,7 @@ export const epsGetPoolInfo = async () => {
     return poolData;
 
   } catch (error) {
-    console.log(`----------->>>>>>>>>>>${error}`)
+    console.log(error)
   }
 
 

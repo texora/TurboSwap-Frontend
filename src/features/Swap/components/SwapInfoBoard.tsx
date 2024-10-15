@@ -35,7 +35,6 @@ export function SwapInfoBoard({
   computedSwapResult?: ApiSwapV1OutSuccess['data']
   onRefresh: () => void
 }) {
-  console.log(computedSwapResult)
   const { t } = useTranslation()
   const [showMoreSwapInfo, setShowMoreSwapInfo] = useState(false)
   const refreshCircleRef = useRef<IntervalCircleHandler>(null)

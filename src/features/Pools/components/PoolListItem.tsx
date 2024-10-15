@@ -107,8 +107,6 @@ export default function PoolListItem({
 
   const onClickSwap = useCallback(() => {
     const [inputMint, outputMint] = [wSolToSol(pool.mintA.address), wSolToSol(pool.mintB.address)]
-    console.log(inputMint)
-    console.log(outputMint)
     router.push({
       pathname: '/swap',
       query: {

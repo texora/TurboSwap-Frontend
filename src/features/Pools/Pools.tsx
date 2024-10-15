@@ -288,7 +288,6 @@ export default function Pools() {
   const [poolinfo, setPoolinfo] = useState<any>([])
 
   const fetchPoolInfo = async () => {
-    console.log(`------------->>>>>>>>>>>>>>>>>>>>>>>`)
     const pool = await epsGetPoolInfo()
     setPoolinfo(pool)
   }

@@ -153,7 +153,6 @@ export default function Increase() {
   }
 
   useEffect(() => {
-    console.log(`>>>>>>>>>>>>>>>>>>>>>${urlPoolId}`)
     fetchPoolInfo();
   }, [urlPoolId])
 
