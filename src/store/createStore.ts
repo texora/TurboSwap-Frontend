@@ -20,6 +20,7 @@ const createStore = <T>(
     setState: Get<Mutate<StoreApi<T>, MiddleWares>, 'setState', undefined>,
     getState: Get<Mutate<StoreApi<T>, MiddleWares>, 'getState', undefined>,
     store: Mutate<StoreApi<T>, MiddleWares>,
+    // $$storeMutations: MiddleWares
   ) => T,
   name?: string
 ) => {
