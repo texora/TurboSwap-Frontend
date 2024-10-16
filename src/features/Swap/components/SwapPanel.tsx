@@ -369,7 +369,7 @@ export function SwapPanel({
       let amount_in = isSwapBaseIn ? new BN(parseFloat(amountIn) * 100_000_000) : new BN(parseFloat(inputAmount) * 100_000_000);
       // let amount_out = isSwapBaseIn ? new BN(parseFloat(outputAmount) * 100_000_000) : new BN(parseFloat(amountIn) * 100_000_000);
 
-      let config_index = 0;
+      let config_index = 1;
 
       const [address, _] = await getAmmConfigAddress(
         config_index,

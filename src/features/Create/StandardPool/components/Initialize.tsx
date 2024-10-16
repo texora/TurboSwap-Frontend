@@ -204,7 +204,7 @@ export default function Initialize() {
     const program = new Program(IDL, programId, provider);
 
     try {
-      let config_index = 0;
+      let config_index = 1;
       let tradeFeeRate = new BN(10)
       let protocolFeeRate = new BN(1000)
       let fundFeeRate = new BN(25000)
@@ -281,8 +281,26 @@ export default function Initialize() {
         TOKEN_PROGRAM_ID
       );
 
+      const confirmOptions = {
+        skipPreflight: true,
+      };
+
+      console.log(anchorWallet.publicKey.toString())
+      console.log(ammConfigPDA.toString())
+      console.log(auth.toString())
+      console.log(poolAddress.toString())
+      console.log(token0.toString())
+      console.log(token1.toString())
+      console.log(lpMintAddress.toString())
+      console.log(creatorToken0.toString())
+      console.log(creatorToken1.toString())
+      console.log(creatorLpTokenAddress.toString())
+      console.log(vault0.toString())
+      console.log(vault1.toString())
+      console.log(observationAddress.toString())
+
       await program.methods
-        .initialize(new BN(parseFloat(tokenAmount.base) * 100000000), new BN(parseFloat(tokenAmount.quote) * 100_000_000), new BN(0))
+        .initialize(new BN(parseFloat(tokenAmount.base) * Math.pow(10, eclipseTokenList.filter(i => i.key === token0.toString())[0].value.decimals)), new BN(parseFloat(tokenAmount.quote) * eclipseTokenList.filter(i => i.key === token1.toString())[0].value.decimals), new BN(0))
         .accounts({
           creator: anchorWallet.publicKey,
           ammConfig: ammConfigPDA,
