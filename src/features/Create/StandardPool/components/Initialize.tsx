@@ -35,12 +35,12 @@ import useFetchPoolByMint from '@/hooks/pool/useFetchPoolByMint'
 import CreateSuccessModal from './CreateSuccessModal'
 import useInitPoolSchema from '../hooks/useInitPoolSchema'
 import useBirdeyeTokenPrice from '@/hooks/token/useBirdeyeTokenPrice'
-import { useWallet } from '@solana/wallet-adapter-react';
+import { useConnection, useWallet } from '@solana/wallet-adapter-react';
 import { IDL } from '@/idl/raydium_cp_swap';
-import { Connection, PublicKey, SystemProgram, SYSVAR_RENT_PUBKEY } from '@solana/web3.js';
+import { Connection, PublicKey, SystemProgram, SYSVAR_RENT_PUBKEY, Keypair, sendAndConfirmTransaction, Transaction } from '@solana/web3.js';
 import { Program, AnchorProvider, BN, utils } from '@project-serum/anchor';
 import { getAmmConfigAddress, getAuthAddress, getPoolAddress, getPoolLpMintAddress, getPoolVaultAddress, getOrcleAccountAddress } from '@/utils/pda'
-import { getOrCreateAssociatedTokenAccount, getAssociatedTokenAddressSync, TOKEN_PROGRAM_ID } from "@solana/spl-token";
+import { getOrCreateAssociatedTokenAccount, createSyncNativeInstruction, NATIVE_MINT, getAssociatedTokenAddressSync, TOKEN_PROGRAM_ID } from "@solana/spl-token";
 import { ASSOCIATED_PROGRAM_ID } from '@project-serum/anchor/dist/cjs/utils/token'
 import { eclipseTokenList } from '@/utils/eclipseTokenList'
 import Decimal from 'decimal.js'
@@ -191,8 +191,32 @@ export default function Initialize() {
     };
   }, [wallet]);
 
-  const onInitializeClick = async () => {
+  const makeWETH = async (tokenOrder: string) => {
+    if (!anchorWallet) return
+    const connection = new Connection("https://testnet.dev2.eclipsenetwork.xyz", 'confirmed');
 
+    let ata = getAssociatedTokenAddressSync(
+      NATIVE_MINT, // mint
+      anchorWallet?.publicKey // owner
+    );
+    console.log(ata.toString())
+
+    let tx = new Transaction().add(
+      // trasnfer SOL
+      SystemProgram.transfer({
+        fromPubkey: anchorWallet.publicKey,
+        toPubkey: ata,
+        lamports: tokenOrder === "base" ? Math.floor(parseFloat(tokenAmount.base) * 1e9) : Math.floor(parseFloat(tokenAmount.quote) * 1e9),
+      }),
+      // sync wrapped SOL balance
+      createSyncNativeInstruction(ata, TOKEN_PROGRAM_ID)
+    );
+    const signature = await wallet.sendTransaction(tx, connection);
+    console.log(signature)
+    // return tx;
+  }
+
+  const onInitializeClick = async () => {
     if (!anchorWallet) return;
     if (!tokenAmount.base || !tokenAmount.quote) return;
     if (!baseToken || !quoteToken) return;
@@ -204,7 +228,7 @@ export default function Initialize() {
     const program = new Program(IDL, programId, provider);
 
     try {
-      let config_index = 1;
+      let config_index = 2;
       let tradeFeeRate = new BN(10)
       let protocolFeeRate = new BN(1000)
       let fundFeeRate = new BN(25000)
@@ -228,6 +252,13 @@ export default function Initialize() {
             systemProgram: SystemProgram.programId,
           })
           .rpc();
+      }
+
+      if (baseToken.address.toString() === NATIVE_MINT.toString()) {
+        await makeWETH("base");
+      }
+      else if (quoteToken.address.toString() === NATIVE_MINT.toString()) {
+        await makeWETH("quote");
       }
 
       const token0 = new PublicKey(baseToken.address)
@@ -280,24 +311,21 @@ export default function Initialize() {
         false,
         TOKEN_PROGRAM_ID
       );
-
-      const confirmOptions = {
-        skipPreflight: true,
-      };
-
-      console.log(anchorWallet.publicKey.toString())
-      console.log(ammConfigPDA.toString())
-      console.log(auth.toString())
-      console.log(poolAddress.toString())
       console.log(token0.toString())
       console.log(token1.toString())
+      console.log(auth.toString())
+      console.log(poolAddress.toString())
       console.log(lpMintAddress.toString())
-      console.log(creatorToken0.toString())
-      console.log(creatorToken1.toString())
-      console.log(creatorLpTokenAddress.toString())
       console.log(vault0.toString())
       console.log(vault1.toString())
+      console.log(creatorLpTokenAddress.toString())
       console.log(observationAddress.toString())
+      console.log(creatorToken0.toString())
+      console.log(creatorToken1.toString())
+
+      // const confirmOptions = {
+      //   skipPreflight: true,
+      // };
 
       await program.methods
         .initialize(new BN(parseFloat(tokenAmount.base) * Math.pow(10, eclipseTokenList.filter(i => i.key === token0.toString())[0].value.decimals)), new BN(parseFloat(tokenAmount.quote) * eclipseTokenList.filter(i => i.key === token1.toString())[0].value.decimals), new BN(0))
@@ -333,10 +361,8 @@ export default function Initialize() {
         mintB: `101,${token1.toString()},${token0Value.programId},${token1Value.logoURI},${token1Value.symbol},${token1Value.name},${token1Value.decimals}`
       }).then(function (_response) {
         setNewCreatedPool({ poolId: poolAddress })
+        offLoading()
       })
-
-      // const poolState = await program.account.poolState.fetch(poolAddress);
-      // console.log({ poolAddress, poolState });
 
     } catch (error) {
       console.error("Error minting NFT:", error);

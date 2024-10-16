@@ -265,7 +265,7 @@ export function SwapPanel({
       const inputToken = new PublicKey(inputMint);
       const outputToken = new PublicKey(outputMint);
 
-      let config_index = 0;
+      let config_index = 2;
 
       const [address, _] = await getAmmConfigAddress(
         config_index,
@@ -290,6 +290,9 @@ export function SwapPanel({
         outputToken,
         programId
       );
+
+      console.log(inputVault.toString())
+      console.log(outputVault.toString())
 
       let balance1 = await connection.getTokenAccountBalance(inputVault)
       let balance2 = await connection.getTokenAccountBalance(outputVault)
@@ -369,7 +372,7 @@ export function SwapPanel({
       let amount_in = isSwapBaseIn ? new BN(parseFloat(amountIn) * 100_000_000) : new BN(parseFloat(inputAmount) * 100_000_000);
       // let amount_out = isSwapBaseIn ? new BN(parseFloat(outputAmount) * 100_000_000) : new BN(parseFloat(amountIn) * 100_000_000);
 
-      let config_index = 1;
+      let config_index = 2;
 
       const [address, _] = await getAmmConfigAddress(
         config_index,

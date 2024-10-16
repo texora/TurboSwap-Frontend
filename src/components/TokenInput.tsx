@@ -220,21 +220,20 @@ function TokenInput(props: TokenInputProps) {
       const connection = new Connection("https://testnet.dev2.eclipsenetwork.xyz", 'confirmed');
 
       try {
-        // if (token.address === "So11111111111111111111111111111111111111112") {
-        //   let balance = await connection.getBalance(wallet.publicKey);
-        //   console.log(balance)
-        //   setAmount(balance)
-        //   setTotalPrice(price * balance)
-        // }
-        // else {
-        // let tokenAccount = await getOrCreateAssociatedTokenAccount(connection, wallet, new PublicKey(token?.address), wallet.publicKey);
-        let tokenAccount = await getAssociatedTokenAddressSync(new PublicKey(token?.address), wallet.publicKey);
-        const info = await connection.getTokenAccountBalance(tokenAccount);
-        if (!info) throw new Error('No balance found');
-        if (info.value.uiAmount == null) throw new Error('No balance found');
-        setAmount(info.value.uiAmount)
-        setTotalPrice(price * info.value.uiAmount)
-        // }
+        if (token.address === "So11111111111111111111111111111111111111112") {
+          let accountInfo = await connection.getAccountInfo(wallet.publicKey);
+
+          setAmount(accountInfo?.lamports ? accountInfo?.lamports / 1_000_000_000 : 0)
+          setTotalPrice(price * (accountInfo?.lamports ? accountInfo?.lamports / 1_000_000_000 : 0))
+        }
+        else {
+          let tokenAccount = await getAssociatedTokenAddressSync(new PublicKey(token?.address), wallet.publicKey);
+          const info = await connection.getTokenAccountBalance(tokenAccount);
+          if (!info) throw new Error('No balance found');
+          if (info.value.uiAmount == null) throw new Error('No balance found');
+          setAmount(info.value.uiAmount)
+          setTotalPrice(price * info.value.uiAmount)
+        }
       } catch (error) {
         setAmount(0)
         setTotalPrice(0)
