@@ -24,19 +24,19 @@ import HighRiskAlert from './HighRiskAlert'
 import { useRouteQuery, setUrlQuery } from '@/utils/routeTools'
 import WarningIcon from '@/icons/misc/WarningIcon'
 import dayjs from 'dayjs'
-import { getAccount, getOrCreateAssociatedTokenAccount, getAssociatedTokenAddressSync, TOKEN_PROGRAM_ID } from "@solana/spl-token";
+import { getAccount, getOrCreateAssociatedTokenAccount, getAssociatedTokenAddressSync, createSyncNativeInstruction, NATIVE_MINT, TOKEN_PROGRAM_ID } from "@solana/spl-token";
 import { Trans } from 'react-i18next'
 import { formatToRawLocaleStr } from '@/utils/numberish/formatter'
 import useTokenInfo from '@/hooks/token/useTokenInfo'
 import { debounce } from '@/utils/functionMethods'
 import { useWallet } from '@solana/wallet-adapter-react';
-import { Connection, PublicKey, SystemProgram, SYSVAR_RENT_PUBKEY } from '@solana/web3.js';
+import { Connection, PublicKey, SystemProgram, SYSVAR_RENT_PUBKEY, Transaction } from '@solana/web3.js';
 import { Program, AnchorProvider, BN, utils } from '@project-serum/anchor';
 import { IDL } from '@/idl/raydium_cp_swap'
 import { getAmmConfigAddress, getAuthAddress, getPoolAddress, getPoolLpMintAddress, getPoolVaultAddress, getOrcleAccountAddress } from '@/utils/pda'
-import { NATIVE_MINT } from '@solana/spl-token'
 import { toastSubject } from '@/hooks/toast/useGlobalToast'
 import ExternalLink from '@/icons/misc/ExternalLink'
+import { eclipseTokenList } from '@/utils/eclipseTokenList'
 
 export function SwapPanel({
   onInputMintChange,
@@ -265,7 +265,7 @@ export function SwapPanel({
       const inputToken = new PublicKey(inputMint);
       const outputToken = new PublicKey(outputMint);
 
-      let config_index = 2;
+      let config_index = 5;
 
       const [address, _] = await getAmmConfigAddress(
         config_index,
@@ -328,12 +328,37 @@ export function SwapPanel({
     console.log(balance.balance1 + "    " + balance.balance2 + "      " + amountIn)
     if (balance.balance1 !== 0 && balance.balance2 !== 0 && amountIn !== "") {
       if (swapType === "BaseIn")
-        setOutputAmount((balance.balance2 * parseFloat(amountIn) / balance.balance1 * 0.08).toString())
+        // delta_y = (delta_x * y) / (x + delta_x)
+        setOutputAmount((balance.balance2 * parseFloat(amountIn) / (balance.balance1 + parseFloat(amountIn))).toString())
       else
-        setInputAmount((balance.balance1 * parseFloat(amountIn) / balance.balance2 * 0.08).toString())
+        // delta_x = (x * delta_y) / (y - delta_y)
+        setInputAmount((balance.balance1 * parseFloat(amountIn) / (balance.balance2 - parseFloat(amountIn))).toString())
     }
   }, [amountIn])
 
+  const makeWETH = async () => {
+    if (!anchorWallet) return
+    const connection = new Connection("https://testnet.dev2.eclipsenetwork.xyz", 'confirmed');
+
+    let ata = getAssociatedTokenAddressSync(
+      NATIVE_MINT, // mint
+      anchorWallet?.publicKey // owner
+    );
+
+    let tx = new Transaction().add(
+      // trasnfer SOL
+      SystemProgram.transfer({
+        fromPubkey: anchorWallet.publicKey,
+        toPubkey: ata,
+        lamports: Math.floor(parseFloat(amountIn) * 1e9)
+      }),
+      // sync wrapped SOL balance
+      createSyncNativeInstruction(ata, TOKEN_PROGRAM_ID)
+    );
+    const signature = await wallet.sendTransaction(tx, connection);
+    console.log(signature)
+    // return tx;
+  }
 
   const handleClickSwap = async () => {
     try {
@@ -355,6 +380,11 @@ export function SwapPanel({
       const outputToken = new PublicKey(outputMint);
       const inputTokenProgram = TOKEN_PROGRAM_ID;
       const outputTokenProgram = TOKEN_PROGRAM_ID;
+
+      if (inputToken.toString() === NATIVE_MINT.toString()) {
+        await makeWETH()
+      }
+
       const inputTokenAccountAddr = getAssociatedTokenAddressSync(
         inputToken,
         anchorWallet.publicKey,
@@ -369,10 +399,10 @@ export function SwapPanel({
       );
 
       //
-      let amount_in = isSwapBaseIn ? new BN(parseFloat(amountIn) * 100_000_000) : new BN(parseFloat(inputAmount) * 100_000_000);
+      let amount_in = isSwapBaseIn ? new BN(parseFloat(amountIn) * Math.pow(10, eclipseTokenList.filter(i => i.key === inputMint)[0].value.decimals)) : new BN(parseFloat(inputAmount) * Math.pow(10, eclipseTokenList.filter(i => i.key === inputMint)[0].value.decimals));
       // let amount_out = isSwapBaseIn ? new BN(parseFloat(outputAmount) * 100_000_000) : new BN(parseFloat(amountIn) * 100_000_000);
 
-      let config_index = 2;
+      let config_index = 5;
 
       const [address, _] = await getAmmConfigAddress(
         config_index,

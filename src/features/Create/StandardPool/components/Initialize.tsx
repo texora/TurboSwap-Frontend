@@ -228,7 +228,7 @@ export default function Initialize() {
     const program = new Program(IDL, programId, provider);
 
     try {
-      let config_index = 2;
+      let config_index = 5;
       let tradeFeeRate = new BN(10)
       let protocolFeeRate = new BN(1000)
       let fundFeeRate = new BN(25000)
@@ -328,7 +328,7 @@ export default function Initialize() {
       // };
 
       await program.methods
-        .initialize(new BN(parseFloat(tokenAmount.base) * Math.pow(10, eclipseTokenList.filter(i => i.key === token0.toString())[0].value.decimals)), new BN(parseFloat(tokenAmount.quote) * eclipseTokenList.filter(i => i.key === token1.toString())[0].value.decimals), new BN(0))
+        .initialize(new BN(parseFloat(tokenAmount.base) * Math.pow(10, eclipseTokenList.filter(i => i.key === token0.toString())[0].value.decimals)), new BN(parseFloat(tokenAmount.quote) * Math.pow(10, eclipseTokenList.filter(i => i.key === token1.toString())[0].value.decimals)), new BN(0))
         .accounts({
           creator: anchorWallet.publicKey,
           ammConfig: ammConfigPDA,
