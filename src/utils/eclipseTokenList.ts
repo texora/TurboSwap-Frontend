@@ -16,6 +16,23 @@ export const eclipseTokenList = [{
     }
   }
 }, {
+  "key": "So11111111111111111111111111111111111111112",
+  "value": {
+    "chainId": 107,
+    "address": "So11111111111111111111111111111111111111112",
+    "programId": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+    "decimals": 9,
+    "symbol": "ETH",
+    "name": "ETH Coin",
+    "logoURI": "https://img-v1.raydium.io/icon/2FPyTwcZLUg1MDrwsyoP4D6s1tM7hAkHYRjkNb5w6Pxk.png",
+    "tags": [],
+    "priority": 2,
+    "type": "eclipse",
+    "extensions": {
+      "coingeckoId": "solana"
+    }
+  }
+}, {
   "key": "5gFSyxjNsuQsZKn9g5L9Ky3cSUvJ6YXqWVuPzmSi8Trx",
   "value": {
     "chainId": 103,
