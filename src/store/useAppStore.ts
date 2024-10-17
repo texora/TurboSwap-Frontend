@@ -298,21 +298,21 @@ export const useAppStore = createStore<AppState>(
 
         let i = 0
         const checkAndSetRpcNode = async () => {
-          const success = await setRpcUrlAct(rpcs[i].url, true, i !== rpcs.length - 1)
-          if (!success) {
-            i++
-            if (i < rpcs.length) {
-              checkAndSetRpcNode()
-            } else {
-              console.error('All RPCs failed.')
-            }
-          }
+          // const success = await setRpcUrlAct(rpcs[i].url, true, i !== rpcs.length - 1)
+          // if (!success) {
+          //   i++
+          //   if (i < rpcs.length) {
+          //     checkAndSetRpcNode()
+          //   } else {
+          //     console.error('All RPCs failed.')
+          //   }
+          // }
         }
 
         const localRpc = getStorageItem(isProdEnv() ? RPC_URL_PROD_KEY : RPC_URL_KEY)
         if (localRpc && isValidUrl(localRpc)) {
-          const success = await setRpcUrlAct(localRpc, true, true)
-          if (!success) checkAndSetRpcNode()
+          // const success = await setRpcUrlAct(localRpc, true, true)
+          // if (!success) checkAndSetRpcNode()
         } else {
           checkAndSetRpcNode()
         }
