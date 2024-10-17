@@ -47,6 +47,7 @@ import Decimal from 'decimal.js'
 import dayjs from 'dayjs'
 import axios from 'axios'
 import { tokensPrices } from '@/utils/tokenInfo'
+import dexConfig from '@/config/config'
 
 export default function Initialize() {
   const { t } = useTranslation()
@@ -224,7 +225,7 @@ export default function Initialize() {
 
     const connection = new Connection("https://testnet.dev2.eclipsenetwork.xyz", 'confirmed');
     const provider = new AnchorProvider(connection, anchorWallet, AnchorProvider.defaultOptions());
-    const programId = new PublicKey('tmcnqP66JdK5UwnfGWJCy66K9BaJjnCqvoGNYEn9VJv');
+    const programId = new PublicKey(dexConfig.programId);
     const program = new Program(IDL, programId, provider);
 
     try {
