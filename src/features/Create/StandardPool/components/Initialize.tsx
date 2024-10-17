@@ -94,22 +94,6 @@ export default function Initialize() {
     type: PoolFetchType.Standard
   })
 
-  // async function getTokenBalanceWeb3(connection: Connection, walletAddress: PublicKey) {
-  //   let tokenAccount = await getAssociatedTokenAddressSync(new PublicKey(inputMint), walletAddress);
-  //   const info = await connection.getTokenAccountBalance(tokenAccount);
-  //   if (info.value.uiAmount == null) throw new Error('No balance found');
-  //   console.log('Balance (using Solana-Web3.js): ', info.value.uiAmount);
-  //   return info.value.uiAmount;
-  // }
-
-  // const poolData: any = useMemo(
-  //   async () => {
-  //     if (wallet.publicKey)
-  //       await getTokenBalanceWeb3(new Connection("https://testnet.dev2.eclipsenetwork.xyz"), wallet.publicKey)
-
-  //   }, [inputMint, outputMint]
-  // )
-
   const existingPools: Map<string, string> = useMemo(
     () =>
       (data || [])
@@ -194,7 +178,7 @@ export default function Initialize() {
 
   const makeWETH = async (tokenOrder: string) => {
     if (!anchorWallet) return
-    const connection = new Connection("https://testnet.dev2.eclipsenetwork.xyz", 'confirmed');
+    const connection = new Connection(dexConfig.network, 'confirmed');
 
     let ata = getAssociatedTokenAddressSync(
       NATIVE_MINT, // mint
@@ -223,7 +207,7 @@ export default function Initialize() {
     if (!baseToken || !quoteToken) return;
     onLoading()
 
-    const connection = new Connection("https://testnet.dev2.eclipsenetwork.xyz", 'confirmed');
+    const connection = new Connection(dexConfig.network, 'confirmed');
     const provider = new AnchorProvider(connection, anchorWallet, AnchorProvider.defaultOptions());
     const programId = new PublicKey(dexConfig.programId);
     const program = new Program(IDL, programId, provider);

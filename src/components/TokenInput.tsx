@@ -37,6 +37,7 @@ import { Connection, PublicKey, SystemProgram, SYSVAR_RENT_PUBKEY } from '@solan
 import { useWallet } from '@solana/wallet-adapter-react';
 import axios from 'axios'
 import { tokensPrices } from '@/utils/tokenInfo'
+import dexConfig from '@/config/config'
 
 export const DEFAULT_SOL_RESERVER = 0.01
 export interface TokenInputProps extends Pick<TokenSelectDialogProps, 'filterFn'> {
@@ -217,7 +218,7 @@ function TokenInput(props: TokenInputProps) {
 
   const fetchAmount = async () => {
     if (token && wallet.publicKey) {
-      const connection = new Connection("https://testnet.dev2.eclipsenetwork.xyz", 'confirmed');
+      const connection = new Connection(dexConfig.network, 'confirmed');
 
       try {
         if (token.address === "So11111111111111111111111111111111111111112") {
@@ -250,7 +251,7 @@ function TokenInput(props: TokenInputProps) {
 
   const getBalanceString = useEvent(async (half: boolean) => {
     if (token && wallet.publicKey) {
-      const connection = new Connection("https://testnet.dev2.eclipsenetwork.xyz", 'confirmed');
+      const connection = new Connection(dexConfig.network, 'confirmed');
 
       let tokenAccount = await getAssociatedTokenAddressSync(new PublicKey(token?.address), wallet.publicKey);
       const info = await connection.getTokenAccountBalance(tokenAccount);

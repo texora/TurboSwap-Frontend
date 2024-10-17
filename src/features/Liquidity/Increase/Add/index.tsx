@@ -108,7 +108,7 @@ export default function AddLiquidity({
     try {
       if (anchorWallet && tokenPair.base && tokenPair.quote && pool) {
 
-        const connection = new Connection("https://testnet.dev2.eclipsenetwork.xyz", 'confirmed');
+        const connection = new Connection(dexConfig.network, 'confirmed');
         const provider = new AnchorProvider(connection, anchorWallet, AnchorProvider.defaultOptions());
         const programId = new PublicKey(dexConfig.programId);
         const program = new Program(IDL, programId, provider);

@@ -5,7 +5,7 @@ import { tokensPrices } from './tokenInfo'
 import dexConfig from '@/config/config'
 
 const getTVL = async (poolInfo: { poolId: string, minta: string, mintb: string }) => {
-  const connection = new Connection("https://testnet.dev2.eclipsenetwork.xyz", 'confirmed');
+  const connection = new Connection(dexConfig.network, 'confirmed');
 
   const tokenAccount1 = getAssociatedTokenAddressSync(new PublicKey(poolInfo.minta.split(",")[1]), new PublicKey(poolInfo.poolId), false, new PublicKey(poolInfo.minta.split(",")[2]))
   const tokenAccount2 = getAssociatedTokenAddressSync(new PublicKey(poolInfo.mintb.split(",")[1]), new PublicKey(poolInfo.poolId), false, new PublicKey(poolInfo.mintb.split(",")[2]))

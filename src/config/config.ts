@@ -1,5 +1,7 @@
 const dexConfig = {
-  programId: "CEmyCV87Psf9z9pheAVfYa85auuULHRZo6yv6dN4CEaR"
+  programId: "tmcnqP66JdK5UwnfGWJCy66K9BaJjnCqvoGNYEn9VJv",
+  network: "https://mainnetbeta-rpc.eclipse.xyz" // mainnet
+  // network: "https://testnet.dev2.eclipsenetwork.xyz" // testnet
 }
 
 export default dexConfig;

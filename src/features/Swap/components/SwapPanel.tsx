@@ -259,7 +259,7 @@ export function SwapPanel({
     if (!inputMint || !outputMint) return;
     console.log("bbbbbbbbbbbbbbbbbbbb")
     try {
-      const connection = new Connection("https://testnet.dev2.eclipsenetwork.xyz", 'confirmed');
+      const connection = new Connection(dexConfig.network, 'confirmed');
       const programId = new PublicKey(dexConfig.programId);
 
       // 
@@ -339,7 +339,7 @@ export function SwapPanel({
 
   const makeWETH = async () => {
     if (!anchorWallet) return
-    const connection = new Connection("https://testnet.dev2.eclipsenetwork.xyz", 'confirmed');
+    const connection = new Connection(dexConfig.network, 'confirmed');
 
     let ata = getAssociatedTokenAddressSync(
       NATIVE_MINT, // mint
@@ -367,7 +367,7 @@ export function SwapPanel({
 
     onSending()
 
-    const connection = new Connection("https://testnet.dev2.eclipsenetwork.xyz", 'confirmed');
+    const connection = new Connection(dexConfig.network, 'confirmed');
     const provider = new AnchorProvider(connection, anchorWallet, AnchorProvider.defaultOptions());
     const programId = new PublicKey(dexConfig.programId);
     const program = new Program(IDL, programId, provider);
@@ -399,7 +399,7 @@ export function SwapPanel({
 
       onSending()
 
-      const connection = new Connection("https://testnet.dev2.eclipsenetwork.xyz", 'confirmed');
+      const connection = new Connection(dexConfig.network, 'confirmed');
       const provider = new AnchorProvider(connection, anchorWallet, AnchorProvider.defaultOptions());
       const programId = new PublicKey(dexConfig.programId);
       const program = new Program(IDL, programId, provider);
@@ -511,7 +511,7 @@ export function SwapPanel({
           </Box>
         ),
         detail: (
-          <Flex align="center" gap={1} opacity={0.5} onClick={() => { window.open(`https://solscan.io/tx/${tx}?cluster=custom&customUrl=https://testnet.dev2.eclipsenetwork.xyz`) }} >
+          <Flex align="center" gap={1} opacity={0.5} onClick={() => { window.open(`https://solscan.io/tx/${tx}?cluster=custom&customUrl=${dexConfig.network}`) }} >
             View transaction details <ExternalLink />
           </Flex>
         ),
