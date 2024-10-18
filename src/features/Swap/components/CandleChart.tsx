@@ -8,6 +8,7 @@ import { useTranslation } from 'react-i18next'
 import { formatCurrency } from '@/utils/numberish/formatter'
 import staticChartData from './ChartData' // Import your static chart data
 import axios from 'axios'
+import dexConfig from '@/config/config'
 
 // Define the type for timeType
 type TimeType = '15m' | '1H' | '4H' | '1D' | '1W'
@@ -119,7 +120,7 @@ export default function CandleChart({ onPriceChange, baseMint, quoteMint, timeTy
     try {
       if (baseMint && quoteMint) {
 
-        const serverData = await axios.get(`http://localhost:8080/epsapi/getPoolPrice?basemint=${baseMint?.address}&quotemint=${quoteMint.address}`);
+        const serverData = await axios.get(`${dexConfig.serverUrl}/getPoolPrice?basemint=${baseMint?.address}&quotemint=${quoteMint.address}`);
 
         const poolPrice = serverData.data.poolPrice;
         let chatDataTemp: any = {
