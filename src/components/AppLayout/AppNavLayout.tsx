@@ -132,7 +132,14 @@ function AppNavLayout({
         </Desktop>
         <Mobile>
           <HStack>
-            <RaydiumLogoOutline />
+            <Image
+              unoptimized
+              src="/logo.png" // Path to your image in the public folder
+              alt="logo"
+              width={30} // Set the width of the image
+              height={34} // Set the height of the image
+            />
+            {/* <RaydiumLogoOutline /> */}
             <Text fontSize="xl" fontWeight="medium" color={colors.textSecondary}>
               {pathname === '/swap'
                 ? t('swap.title')
