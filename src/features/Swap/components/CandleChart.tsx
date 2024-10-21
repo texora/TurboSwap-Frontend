@@ -256,6 +256,137 @@ export default function CandleChart({ onPriceChange, baseMint, quoteMint, timeTy
             firstTime = endTime;
           }
         }
+        else {
+          const serverData = await axios.get(`${dexConfig.serverUrl}/getPoolPrice?basemint=${quoteMint?.address}&quotemint=${baseMint.address}`);
+
+          const poolPrice = serverData.data.poolPrice;
+          if (poolPrice.length > 0) {
+            let firstItem = poolPrice[0];
+            let len = poolPrice.length;
+            // 15m
+            let firstTime = getNear15Tm(firstItem.timestamp);
+            while (firstTime < poolPrice[len - 1].timestamp) {
+              let endTime = firstTime + 900;
+              let filteredPrice = poolPrice.filter((price: any) => price.timestamp >= firstTime && price.timestamp <= endTime);
+              if (filteredPrice.length !== 0) {
+                // Using reduce to find the maximum rate
+                const maxRate = filteredPrice.reduce((max: number, item: any) => {
+                  return (1 / item.rate) > max ? (1 / item.rate) : max;
+                }, -Infinity);
+                const minRate = filteredPrice.reduce((max: number, item: any) => {
+                  return (1 / item.rate) > max ? (1 / item.rate) : max;
+                }, Infinity);
+
+                chatDataTemp['15m'].push({
+                  time: firstTime,
+                  open: (1 / filteredPrice[0].rate),
+                  high: maxRate,
+                  low: minRate,
+                  close: (1 / filteredPrice[filteredPrice.length - 1].rate),
+                  // volume: 0
+                })
+              }
+              firstTime = endTime;
+            }
+            // 1H
+            firstTime = getNear1HTm(firstItem.timestamp);
+            while (firstTime < poolPrice[len - 1].timestamp) {
+              let endTime = firstTime + (60 * 60);
+              let filteredPrice = poolPrice.filter((price: any) => price.timestamp >= firstTime && price.timestamp <= endTime);
+              if (filteredPrice.length !== 0) {
+                // Using reduce to find the maximum rate
+                const maxRate = filteredPrice.reduce((max: number, item: any) => {
+                  return (1 / item.rate) > max ? (1 / item.rate) : max;
+                }, -Infinity);
+                const minRate = filteredPrice.reduce((max: number, item: any) => {
+                  return (1 / item.rate) > max ? (1 / item.rate) : max;
+                }, Infinity);
+
+                chatDataTemp['1H'].push({
+                  time: firstTime,
+                  open: (1 / filteredPrice[0].rate),
+                  high: maxRate,
+                  low: minRate,
+                  close: (1 / filteredPrice[filteredPrice.length - 1].rate),
+                  // volume: 0
+                })
+              }
+              firstTime = endTime;
+            }
+            // 4H
+            firstTime = getNear4HTm(firstItem.timestamp);
+            while (firstTime < poolPrice[len - 1].timestamp) {
+              let endTime = firstTime + (60 * 60 * 4);
+              let filteredPrice = poolPrice.filter((price: any) => price.timestamp >= firstTime && price.timestamp <= endTime);
+              if (filteredPrice.length !== 0) {
+                // Using reduce to find the maximum rate
+                const maxRate = filteredPrice.reduce((max: number, item: any) => {
+                  return (1 / item.rate) > max ? (1 / item.rate) : max;
+                }, -Infinity);
+                const minRate = filteredPrice.reduce((max: number, item: any) => {
+                  return (1 / item.rate) > max ? (1 / item.rate) : max;
+                }, Infinity);
+                chatDataTemp['4H'].push({
+                  time: firstTime,
+                  open: (1 / filteredPrice[0].rate),
+                  high: maxRate,
+                  low: minRate,
+                  close: (1 / filteredPrice[filteredPrice.length - 1].rate),
+                  // volume: 0
+                })
+              }
+              firstTime = endTime;
+            }
+            // 1D
+            firstTime = getNear1D(firstItem.timestamp);
+            while (firstTime < poolPrice[len - 1].timestamp) {
+              let endTime = firstTime + (60 * 60 * 24);
+              let filteredPrice = poolPrice.filter((price: any) => price.timestamp >= firstTime && price.timestamp <= endTime);
+              if (filteredPrice.length !== 0) {
+                // Using reduce to find the maximum rate
+                const maxRate = filteredPrice.reduce((max: number, item: any) => {
+                  return (1 / item.rate) > max ? (1 / item.rate) : max;
+                }, -Infinity);
+                const minRate = filteredPrice.reduce((max: number, item: any) => {
+                  return (1 / item.rate) > max ? (1 / item.rate) : max;
+                }, Infinity);
+                chatDataTemp['1D'].push({
+                  time: firstTime,
+                  open: (1 / filteredPrice[0].rate),
+                  high: maxRate,
+                  low: minRate,
+                  close: (1 / filteredPrice[filteredPrice.length - 1].rate),
+                  // volume: 0
+                })
+              }
+              firstTime = endTime;
+            }
+            // 1W
+            firstTime = getNear1W(firstItem.timestamp);
+            while (firstTime < poolPrice[len - 1].timestamp) {
+              let endTime = firstTime + (60 * 60 * 24 * 7);
+              let filteredPrice = poolPrice.filter((price: any) => price.timestamp >= firstTime && price.timestamp <= endTime);
+              if (filteredPrice.length !== 0) {
+                // Using reduce to find the maximum rate
+                const maxRate = filteredPrice.reduce((max: number, item: any) => {
+                  return (1 / item.rate) > max ? (1 / item.rate) : max;
+                }, -Infinity);
+                const minRate = filteredPrice.reduce((max: number, item: any) => {
+                  return (1 / item.rate) > max ? (1 / item.rate) : max;
+                }, Infinity);
+                chatDataTemp['1W'].push({
+                  time: firstTime,
+                  open: (1 / filteredPrice[0].rate),
+                  high: maxRate,
+                  low: minRate,
+                  close: (1 / filteredPrice[filteredPrice.length - 1].rate),
+                  // volume: 0
+                })
+              }
+              firstTime = endTime;
+            }
+          }
+        }
 
         setChartData(chatDataTemp)
       }

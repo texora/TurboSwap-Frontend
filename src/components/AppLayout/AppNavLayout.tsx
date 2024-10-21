@@ -121,6 +121,7 @@ function AppNavLayout({
             <Link href="/swap">
               {/* <RaydiumLogo /> */}
               <Image
+                unoptimized
                 src="/logo.png" // Path to your image in the public folder
                 alt="logo"
                 width={70} // Set the width of the image
@@ -162,10 +163,10 @@ function AppNavLayout({
             <RouteLink href="/portfolio" isActive={pathname === '/portfolio'}>
               {t('portfolio.title')}
             </RouteLink>
-            {/* <RouteLink href="/playground" isActive={pathname === '/playground'}>
-              {t('common.playground')}
-            </RouteLink> */}
-            <Menu size="lg">
+            <div className='css-qvoh0p'>
+              <a href="https://bridge.eclipse.xyz/" target="_blank" rel="noreferrer">Bridge</a>
+            </div>
+            {/* <Menu size="lg">
               <MenuButton fontSize={'lg'} px={4} py={2}>
                 <Flex
                   align="center"
@@ -177,7 +178,7 @@ function AppNavLayout({
                 </Flex>
               </MenuButton>
               <NavMoreButtonMenuPanel />
-            </Menu>
+            </Menu> */}
           </HStack>
         </Desktop>
 
