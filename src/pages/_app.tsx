@@ -57,7 +57,7 @@ const MyApp = ({ Component, pageProps, lng, breakPoints, ...props }: AppProps & 
         <meta httpEquiv="Content-Security-Policy" content="upgrade-insecure-requests" />
         <meta name="twitter:title" content="TurboSwap" />
         <meta name="twitter:description" content="Lightning fast dex on Eclipse Network" />
-        <meta property="tg:url" content="https://t.me/TurboSwap_SVM" />
+        <meta property="telegram:url" content="https://t.me/TurboSwap_SVM" />
         <meta property="og:description" content="Lightning fast dex on Eclipse Network" />
         <meta property="og:url" content="https://turboswap.fun/" />
         <meta property="og:type" content="website" />
