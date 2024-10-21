@@ -54,8 +54,8 @@ const MyApp = ({ Component, pageProps, lng, breakPoints, ...props }: AppProps & 
         <meta name="twitter:creator" content="@TurboSwapProtocol" />
         <meta httpEquiv="Content-Security-Policy" content="upgrade-insecure-requests" />
         <meta name="twitter:title" content="TurboSwap" />
-        <meta name="twitter:description" content="An on-chain order book AMM powering the evolution of DeFi " />
-        <meta property="og:description" content="An on-chain order book AMM powering the evolution of DeFi " />
+        <meta name="twitter:description" content="Lightning fast dex on Eclipse Network" />
+        <meta property="og:description" content="Lightning fast dex on Eclipse Network" />
         <meta property="og:url" content="https://turboswap.fun/" />
         <meta property="og:type" content="website" />
         {/* <meta property="og:image" content="https://img-v1.raydium.io/share/7be7ee6c-56b2-451e-a010-6c21e0db2ee5.png" /> */}
