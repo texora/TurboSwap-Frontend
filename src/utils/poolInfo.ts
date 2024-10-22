@@ -23,6 +23,7 @@ export const epsGetPoolInfo = async () => {
 
   try {
     const serverData = await axios.get(`${dexConfig.serverUrl}/getPoolInfo`);
+    console.log(serverData);
     const poolInfo = serverData.data.poolInfo
 
     const poolData = [];
