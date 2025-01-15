@@ -83,7 +83,7 @@
     "bn.js": "^5.2.1",
     "bs58": "^5.0.0",
     "compare-versions": "^6.1.0",
-    "cookies-next": "^2.1.1",
+    "cookies-next": "^4.3.0",
     "d3": "^7.6.1",
     "dayjs": "^1.11.5",
     "decimal.js": "^10.4.2",

@@ -6032,10 +6032,10 @@
   dependencies:
     "@types/node" "*"
 
-"@types/cookie@^0.4.1":
-  version "0.4.1"
-  resolved "https://registry.npmjs.org/@types/cookie/-/cookie-0.4.1.tgz"
-  integrity sha512-XW/Aa8APYr6jSVVA1y/DEIZX0/GMKLEVekNG727R8cs56ahETkRAy/3DR7+fJyh7oUgGwNQaRfXCun0+KbWY7Q==
+"@types/cookie@^0.6.0":
+  version "0.6.0"
+  resolved "https://registry.yarnpkg.com/@types/cookie/-/cookie-0.6.0.tgz#eac397f28bf1d6ae0ae081363eca2f425bedf0d5"
+  integrity sha512-4Kh9a6B2bQciAhf7FSuMRRkUWecJgJu9nPnx3yzpsfXX/c50REIqpHY4C82bXP90qrLtXtkDxTZosYO3UpOwlA==
 
 "@types/d3-array@*":
   version "3.0.3"
@@ -6408,11 +6408,6 @@
   version "12.20.55"
   resolved "https://registry.npmjs.org/@types/node/-/node-12.20.55.tgz"
   integrity sha512-J8xLz7q2OFulZ2cyGTLE1TbbZcjpno7FaN6zdJNrgAdrJ+DZzh/uFR6YrTb4C+nXakvud8Q4+rbhoIWlYQbUFQ==
-
-"@types/node@^16.10.2":
-  version "16.18.25"
-  resolved "https://registry.npmjs.org/@types/node/-/node-16.18.25.tgz"
-  integrity sha512-rUDO6s9Q/El1R1I21HG4qw/LstTHCPO/oQNAwI/4b2f9EWvMnqt4d3HJwPMawfZ3UvodB8516Yg+VAq54YM+eA==
 
 "@types/numeral@^2.0.5":
   version "2.0.5"
@@ -9172,19 +9167,18 @@ cookie-es@^1.0.0:
   resolved "https://registry.npmjs.org/cookie-es/-/cookie-es-1.0.0.tgz"
   integrity sha512-mWYvfOLrfEc996hlKcdABeIiPHUPC6DM2QYZdGGOvhOTbA3tjm2eBwqlJpoFdjC89NI4Qt6h0Pu06Mp+1Pj5OQ==
 
-cookie@^0.4.0:
-  version "0.4.2"
-  resolved "https://registry.npmjs.org/cookie/-/cookie-0.4.2.tgz"
-  integrity sha512-aSWTXFzaKWkvHO1Ny/s+ePFpvKsPnjc551iI41v3ny/ow6tBG5Vd+FuqGNhh1LxOmVzOlGUriIlOaokOvhaStA==
+cookie@^0.7.0:
+  version "0.7.2"
+  resolved "https://registry.yarnpkg.com/cookie/-/cookie-0.7.2.tgz#556369c472a2ba910f2979891b526b3436237ed7"
+  integrity sha512-yki5XnKuf750l50uGTllt6kKILY4nQ1eNIQatoXEByZ5dWgnKqbnqmTrBE5B4N7lrMJKQ2ytWMiTO2o0v6Ew/w==
 
-cookies-next@^2.1.1:
-  version "2.1.1"
-  resolved "https://registry.npmjs.org/cookies-next/-/cookies-next-2.1.1.tgz"
-  integrity sha512-AZGZPdL1hU3jCjN2UMJTGhLOYzNUN9Gm+v8BdptYIHUdwz397Et1p+sZRfvAl8pKnnmMdX2Pk9xDRKCGBum6GA==
+cookies-next@^4.3.0:
+  version "4.3.0"
+  resolved "https://registry.yarnpkg.com/cookies-next/-/cookies-next-4.3.0.tgz#66c489d1c7be126b844097c94b00cd66690a3791"
+  integrity sha512-XxeCwLR30cWwRd94sa9X5lRCDLVujtx73tv+N0doQCFIDl83fuuYdxbu/WQUt9aSV7EJx7bkMvJldjvzuFqr4w==
   dependencies:
-    "@types/cookie" "^0.4.1"
-    "@types/node" "^16.10.2"
-    cookie "^0.4.0"
+    "@types/cookie" "^0.6.0"
+    cookie "^0.7.0"
 
 copy-to-clipboard@3.3.3, copy-to-clipboard@^3.3.1, copy-to-clipboard@^3.3.3:
   version "3.3.3"
